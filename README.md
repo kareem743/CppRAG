@@ -1,4 +1,4 @@
-# RAG Project (PythonProject4)
+# CppRAG  
 
 This project provides a local RAG (Retrieval-Augmented Generation) pipeline with:
 - A CLI for ingestion, querying, and interactive use.
