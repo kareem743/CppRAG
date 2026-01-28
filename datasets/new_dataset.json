@@ -1,0 +1,242 @@
+[
+  {
+    "chunk_text_snippet": "community. He enforced the maintaining of all bona-fide transactions in clergy property, but advocated the revision of such contracts as might be proved fraudulent, and urged a concordat proposing that the state provide for the support of t",
+    "expected_chunk_count": 1,
+    "ground_truth_answer": "He enforced maintaining bona-fide transactions in clergy property, but wanted fraudulent contracts revised and urged a concordat for state support.",
+    "ground_truth_sources": [
+      "C:\\Users\\Mamoun\\Desktop\\new\\5997\\pg5997.txt"
+    ],
+    "question": "According to the passage, what did he enforce regarding clergy property transactions, and what did he advocate/urge in addition?",
+    "question_type": "factual"
+  },
+  {
+    "chunk_text_snippet": "on the lowest calculation, 1,000 grown sheep and nearly 3,000 lambs; and yet our loss was small by comparison with that of our neighbours, whose runs were further back among the hill, and less sheltered than our own. Long before midsummer o",
+    "expected_chunk_count": 1,
+    "ground_truth_answer": "On the lowest calculation: 1,000 grown sheep and nearly 3,000 lambs.",
+    "ground_truth_sources": [
+      "C:\\Users\\Mamoun\\Desktop\\new\\5992\\pg5992.txt"
+    ],
+    "question": "On the lowest calculation, how many grown sheep and lambs were there?",
+    "question_type": "factual"
+  },
+  {
+    "chunk_text_snippet": "\"Pleased with yourselves more than ever, you will smile slowly, and then say with grave deliberation: 'It is true that in some of our provinces one meets very strange people, people absolutely ridiculous, and sometimes scoundrels too!' \"Ah,",
+    "expected_chunk_count": 1,
+    "ground_truth_answer": "They say that in some provinces one meets very strange people—absolutely ridiculous—and sometimes scoundrels too.",
+    "ground_truth_sources": [
+      "C:\\Users\\Mamoun\\Desktop\\new\\5996\\pg5996.txt"
+    ],
+    "question": "What do “you” say with grave deliberation in the quoted passage?",
+    "question_type": "factual"
+  },
+  {
+    "chunk_text_snippet": "that it should be beautiful from end to end, and not start off in front of the house with fireworks, going off at its farthest limit into sheer sticks. The standard reached beneath the windows should at least be kept up, if it cannot be sur",
+    "expected_chunk_count": 1,
+    "ground_truth_answer": "The standard reached beneath the windows should at least be kept up (even if it cannot be surpassed).",
+    "ground_truth_sources": [
+      "C:\\Users\\Mamoun\\Desktop\\new\\5991\\pg5991.txt"
+    ],
+    "question": "What does the passage say should at least be kept up beneath the windows?",
+    "question_type": "factual"
+  },
+  {
+    "chunk_text_snippet": "note: \u201cDEAR GUARDIAN: Your letter just received. I won't pretend that I am not sorry for the loss of my money, but I am sure that you acted for the best. Don't trouble yourself too much about the matter. Perhaps it will all come out right i",
+    "expected_chunk_count": 1,
+    "ground_truth_answer": "The writer says they are sorry for the loss of their money, but believes the guardian acted for the best and shouldn’t worry too much.",
+    "ground_truth_sources": [
+      "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt"
+    ],
+    "question": "In the “DEAR GUARDIAN” note, what does the writer say about losing their money and the guardian’s actions?",
+    "question_type": "factual"
+  },
+  {
+    "chunk_text_snippet": "get an orchestra, and you will conduct just enough to let me sing 'Ach! dieses Auge, ewig nun offen,' and then I'll die in peace! That's the climax of Siegfried's part, and it must sound red, blood red--Siegfried is red; so is Tristan. Vogl",
+    "expected_chunk_count": 1,
+    "ground_truth_answer": "They want an orchestra conducted just enough to let them sing that line, and then they’ll “die in peace”; it’s described as the climax of Siegfried’s part.",
+    "ground_truth_sources": [
+      "C:\\Users\\Mamoun\\Desktop\\new\\5995\\pg5995.txt"
+    ],
+    "question": "What does the speaker ask for with an orchestra, and what do they say will happen afterward?",
+    "question_type": "factual"
+  },
+  {
+    "chunk_text_snippet": "Locke business chiefly in Mr. Locke's hands. How long have you been in the office?\u201d \u201cNot long,\u201d answered Walter, who did not care to admit that his term of service covered less than an hour. \u201cYou've a good place with a rising firm. Mind you",
+    "expected_chunk_count": 1,
+    "ground_truth_answer": "Walter answers, “Not long,” and he doesn’t want to admit his service covered less than an hour.",
+    "ground_truth_sources": [
+      "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt"
+    ],
+    "question": "How does Walter answer when asked how long he has been in the office, and what does he not want to admit?",
+    "question_type": "factual"
+  },
+  {
+    "chunk_text_snippet": "heard and recognized by the besiegers. Something like the truth flashed through his brain. And yet how was he to account for the presence and words of Colonel Lopez, whose interest, as well as every tie of duty and gratitude, must bind him ",
+    "expected_chunk_count": 1,
+    "ground_truth_answer": "He can’t account for the presence and words of Colonel Lopez.",
+    "ground_truth_sources": [
+      "C:\\Users\\Mamoun\\Desktop\\new\\5997\\pg5997.txt"
+    ],
+    "question": "Whose presence and words does he struggle to account for in the passage?",
+    "question_type": "factual"
+  },
+  {
+    "chunk_text_snippet": "in my affections. I see in it, however, an earnest and ingenious effort to knit music, text, and action closer together than it was the wont of Italian composers to do before the advent of Wagner set Young Italy in a ferment. Music plays a ",
+    "expected_chunk_count": 1,
+    "ground_truth_answer": "It’s described as an effort to knit music, text, and action closer together than Italian composers used to do, before Wagner’s advent set Young Italy in a ferment.",
+    "ground_truth_sources": [
+      "C:\\Users\\Mamoun\\Desktop\\new\\5995\\pg5995.txt"
+    ],
+    "question": "What does the speaker say the work tries to do with music, text, and action, and what did Wagner’s advent do to Young Italy?",
+    "question_type": "factual"
+  },
+  {
+    "chunk_text_snippet": "are brushed off with a neatness and expedition altogether surprising; never do tea and toast taste so nice as out there in the sun; never was a book so wise and full of pith as the one lying open before you; never was woman so clean outside",
+    "expected_chunk_count": 1,
+    "ground_truth_answer": "Tea and toast never taste so nice as out there in the sun.",
+    "ground_truth_sources": [
+      "C:\\Users\\Mamoun\\Desktop\\new\\5991\\pg5991.txt"
+    ],
+    "question": "Where does the passage say tea and toast taste especially nice?",
+    "question_type": "factual"
+  },
+  {
+    "chunk_text_snippet": "always to shine about this strange child of the South. Too much of tropical passion, too much of undefined longing, too much of tenderness the part could hardly be invested with, but it is easily made silly by over-acting in the very place ",
+    "expected_chunk_count": 1,
+    "ground_truth_answer": "The part is easily made silly by over-acting.",
+    "ground_truth_sources": [
+      "C:\\Users\\Mamoun\\Desktop\\new\\5995\\pg5995.txt"
+    ],
+    "question": "According to the passage, what can easily make the part seem silly?",
+    "question_type": "factual"
+  },
+  {
+    "chunk_text_snippet": "had received. His wish became her law; he was humored into weakness. He never became robust physically, and early showed defects quite unknown in either branch of the family. He failed in college, for which failure his mother found adequate",
+    "expected_chunk_count": 1,
+    "ground_truth_answer": "He failed in college.",
+    "ground_truth_sources": [
+      "C:\\Users\\Mamoun\\Desktop\\new\\5994\\pg5994.txt"
+    ],
+    "question": "What does the passage say he failed in?",
+    "question_type": "factual"
+  },
+  {
+    "chunk_text_snippet": "there, and must have been a pretty thing, though there were few enough traces of it, except the beautiful eyes, in the little anxious face that I saw for the first time immediately after the wedding, and just before the weary and harassed p",
+    "expected_chunk_count": 1,
+    "ground_truth_answer": "The only clear trace mentioned is the beautiful eyes.",
+    "ground_truth_sources": [
+      "C:\\Users\\Mamoun\\Desktop\\new\\5991\\pg5991.txt"
+    ],
+    "question": "What trace of the “pretty thing” does the narrator say remained in the anxious face?",
+    "question_type": "factual"
+  },
+  {
+    "chunk_text_snippet": "leave you to your own discretion. I will pay your fare there and back, and trust to your doing something to repay me for the outlay.\u201d \u201cVery well, sir.\u201d Walter took the necessary directions, and after dinner took a train out to the suburban ",
+    "expected_chunk_count": 1,
+    "ground_truth_answer": "The speaker says they will pay the person’s fare there and back, and expects them to do something to repay the outlay.",
+    "ground_truth_sources": [
+      "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt"
+    ],
+    "question": "What does the speaker offer to pay for, and what do they trust the person will do in return?",
+    "question_type": "factual"
+  },
+  {
+    "chunk_text_snippet": "the villain, who the hero? All are good and all are evil. \"The hero of my tale, whom I love with all the strength of my soul, whom I have tried to set forth in all his beauty, and who has always been, is, and always will be most beautiful, ",
+    "expected_chunk_count": 1,
+    "ground_truth_answer": "The narrator says the hero has always been, is, and always will be most beautiful, and that they love him with all their soul.",
+    "ground_truth_sources": [
+      "C:\\Users\\Mamoun\\Desktop\\new\\5996\\pg5996.txt"
+    ],
+    "question": "How does the narrator describe the hero of the tale in the passage?",
+    "question_type": "factual"
+  },
+  {
+    "chunk_text_snippet": "the past, rather than to the future. Kropotkin seems to imply that the wave of enthusiasm for Dostoevski is a phase that has already passed, rather than a new and increasing demonstration, as Mr. Baring would have us believe. Dostoevski's f",
+    "expected_chunk_count": 1,
+    "ground_truth_answer": "Kropotkin seems to imply the enthusiasm for Dostoevski is a phase that has already passed, not something new and increasing.",
+    "ground_truth_sources": [
+      "C:\\Users\\Mamoun\\Desktop\\new\\5996\\pg5996.txt"
+    ],
+    "question": "What does Kropotkin seem to imply about the wave of enthusiasm for Dostoevski?",
+    "question_type": "factual"
+  },
+  {
+    "chunk_text_snippet": "I should have flunked as sure as can be.\u201d \u201cIt would be better for you to get your own lesson, Walter.\u201d \u201cWell, I suppose it would,\u201d answered his roommate, yawning. \u201cI wish you could drive this logic into my head. I suppose I am unusually stu",
+    "expected_chunk_count": 1,
+    "ground_truth_answer": "It would be better for Walter to get his own lesson.",
+    "ground_truth_sources": [
+      "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt"
+    ],
+    "question": "What does the speaker say would be better for Walter?",
+    "question_type": "factual"
+  },
+  {
+    "chunk_text_snippet": "inspiration of right-feeling attitudes. She knew full well the healing potency of the play-spirit. Her insight into life was already deep, her outlook upon life high and heartful. Then her mother failed; she came home and for three months h",
+    "expected_chunk_count": 1,
+    "ground_truth_answer": "She knew full well the healing potency of the play-spirit.",
+    "ground_truth_sources": [
+      "C:\\Users\\Mamoun\\Desktop\\new\\5994\\pg5994.txt"
+    ],
+    "question": "What did she know “full well,” according to the passage?",
+    "question_type": "factual"
+  },
+  {
+    "chunk_text_snippet": "till my husband comes home. I don't dare to have it in the house.\u201d \u201cIt won't be necessary, for there comes your husband.\u201d It was true. Ephraim Gregory turned the corner of the street, and paused in surprise at the spectacle before him. \u201cWha",
+    "expected_chunk_count": 1,
+    "ground_truth_answer": "Ephraim Gregory turned the corner of the street.",
+    "ground_truth_sources": [
+      "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt"
+    ],
+    "question": "Who turned the corner of the street in the passage?",
+    "question_type": "factual"
+  },
+  {
+    "chunk_text_snippet": "and was fated to prove disastrous again, it is well to bear the fact in mind that instability was, is, and always will be an element in the cultivation of opera so long as it remains an exotic; that is, until it becomes a national expressio",
+    "expected_chunk_count": 1,
+    "ground_truth_answer": "It says instability is, and always will be, an element in opera’s cultivation as long as opera remains an exotic.",
+    "ground_truth_sources": [
+      "C:\\Users\\Mamoun\\Desktop\\new\\5995\\pg5995.txt"
+    ],
+    "question": "According to the passage, what remains an element in the cultivation of opera so long as it remains an exotic?",
+    "question_type": "factual"
+  },
+  {
+    "chunk_text_snippet": "",
+    "expected_chunk_count": 0,
+    "ground_truth_answer": "I don't know",
+    "ground_truth_sources": [],
+    "question": "What is the email address of the author of these texts?",
+    "question_type": "negative"
+  },
+  {
+    "chunk_text_snippet": "",
+    "expected_chunk_count": 0,
+    "ground_truth_answer": "I don't know",
+    "ground_truth_sources": [],
+    "question": "What is the exact GPS location where this story takes place?",
+    "question_type": "negative"
+  },
+  {
+    "chunk_text_snippet": "",
+    "expected_chunk_count": 0,
+    "ground_truth_answer": "I don't know",
+    "ground_truth_sources": [],
+    "question": "What is the official website URL for purchasing these books?",
+    "question_type": "negative"
+  },
+  {
+    "chunk_text_snippet": "",
+    "expected_chunk_count": 0,
+    "ground_truth_answer": "I don't know",
+    "ground_truth_sources": [],
+    "question": "What is the phone number of Ephraim Gregory?",
+    "question_type": "negative"
+  },
+  {
+    "chunk_text_snippet": "",
+    "expected_chunk_count": 0,
+    "ground_truth_answer": "I don't know",
+    "ground_truth_sources": [],
+    "question": "What is the date of birth of Colonel Lopez?",
+    "question_type": "negative"
+  }
+]

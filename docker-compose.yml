@@ -1,0 +1,24 @@
+services:
+  rag-engine:
+    build: .
+    working_dir: /app
+    volumes:
+      - .:/app
+      - ./lancedb_data:/app/lancedb_data
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [gpu]
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [gpu]

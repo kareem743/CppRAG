@@ -1,0 +1,593 @@
+{
+  "config": {
+    "chunk_size": 200,
+    "db_path": "./lancedb_data",
+    "model": "llama3",
+    "overlap": 5,
+    "table_name": "vectors",
+    "top_k": 4
+  },
+  "end_to_end_metrics": {
+    "abstain_accuracy": 0.6,
+    "correctness": 4.75,
+    "failures": [],
+    "latency_ms": {
+      "avg": 1194.3012919992907,
+      "p95": 1926.2108199996865
+    },
+    "semantic_similarity": 0.6866716146469116
+  },
+  "generation_metrics": {
+    "citation_accuracy": 1.0,
+    "completeness": 5.0,
+    "failures": [],
+    "faithfulness": 4.611111111111111,
+    "latency_ms": {
+      "avg": 765.5445750009676,
+      "p95": 1212.3031949966398
+    }
+  },
+  "per_question": [
+    {
+      "end_to_end_answer": "Based on the context from [Source: C:\\Users\\Mamoun\\Desktop\\new\\5997\\pg5997.txt], it can be inferred that the new laws enforced by the government in Mexico regulated the relations of church and state, and specifically regarding clergy property transactions. This is stated as \"The confiscation of clergy property...\" (Source ID: 5997).\n\nAs for what he advocated or urged in addition, according to the passage, F---- (the guest) urged that he never liked to take a leap in the dark, backing up his opinion by several world-revered adages. He also produced plans, Government lease, and transfer deeds to support his proposal, stating \"That's all very fine,\" but \"this transaction can hardly be said to be in the dark; here are the plans and the Government lease and the transfer deeds, all regular and ready.\" (Source ID: 5992).",
+      "expected_chunk_count": 1,
+      "generation_answer": "According to the passage [Source: C:\\Users\\Mamoun\\Desktop\\new\\5997\\pg5997.txt], he enforced the maintaining of all bona-fide transactions in clergy property. In addition, he advocated the revision of such contracts as might be proved fraudulent, and urged a concordat proposing that the state provide for the support of the clergy.\n\nSource ID: The answer is based on the passage itself, so there is no specific Source ID.",
+      "id": "Q1",
+      "question": "According to the passage, what did he enforce regarding clergy property transactions, and what did he advocate/urge in addition?",
+      "question_type": "factual",
+      "retrieval_hit": true,
+      "retrieval_precision": 0.5,
+      "retrieval_rr": 0.5,
+      "retrieval_timing_ms": {
+        "embed": 84.99420000589453,
+        "search": 13.448400000925176,
+        "total": 98.44569998676889
+      },
+      "retrieved_sources": [
+        "C:\\Users\\Mamoun\\Desktop\\new\\5992\\pg5992.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5997\\pg5997.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5997\\pg5997.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt"
+      ]
+    },
+    {
+      "end_to_end_answer": "According to the context, on the lowest calculation, 1,000 grown sheep and nearly 3,000 lambs. (Source ID: [Source: C:\\Users\\Mamoun\\Desktop\\new\\5992\\pg5992.txt])",
+      "expected_chunk_count": 1,
+      "generation_answer": "According to the context, on the lowest calculation, there were 1,000 grown sheep and nearly 3,000 lambs.\n\nSource ID: None needed, as this information is directly stated in the context.",
+      "id": "Q2",
+      "question": "On the lowest calculation, how many grown sheep and lambs were there?",
+      "question_type": "factual",
+      "retrieval_hit": true,
+      "retrieval_precision": 1.0,
+      "retrieval_rr": 1.0,
+      "retrieval_timing_ms": {
+        "embed": 81.80960000026971,
+        "search": 10.398099999292754,
+        "total": 92.21050000633113
+      },
+      "retrieved_sources": [
+        "C:\\Users\\Mamoun\\Desktop\\new\\5992\\pg5992.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5992\\pg5992.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5992\\pg5992.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5992\\pg5992.txt"
+      ]
+    },
+    {
+      "end_to_end_answer": "According to the context, \"What is the word of such a man worth?\" is said by someone else, not \"you\". Then, it's mentioned that Walter takes some money from his pocket and puts most of it into one of his pockets, suggesting that he suspected the gentleman would lie in wait for them.",
+      "expected_chunk_count": 1,
+      "generation_answer": "According to the context, you would say: \"'It is true that in some of our provinces one meets very strange people, people absolutely ridiculous, and sometimes scoundrels too!'\". [Source ID: C:\\Users\\Mamoun\\Desktop\\new\\5996\\pg5996.txt]\n\nNote: The answer is directly quoted from the context provided.",
+      "id": "Q3",
+      "question": "What do \u201cyou\u201d say with grave deliberation in the quoted passage?",
+      "question_type": "factual",
+      "retrieval_hit": false,
+      "retrieval_precision": 0.0,
+      "retrieval_rr": 0.0,
+      "retrieval_timing_ms": {
+        "embed": 82.81190000707284,
+        "search": 10.751599998911843,
+        "total": 93.56579999439418
+      },
+      "retrieved_sources": [
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt"
+      ]
+    },
+    {
+      "end_to_end_answer": "According to the passage, the answer is \"the fresh air\". The girl in the story tries to raise the window but it resists her efforts. Walter leans over and succeeds in raising it, saying \"I like the fresh air, even for a short distance.\"\n\nSource ID: [Source: C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt]",
+      "expected_chunk_count": 1,
+      "generation_answer": "According to the passage, the standard reached beneath the windows should at least be kept up. [Source ID: 5991]",
+      "id": "Q4",
+      "question": "What does the passage say should at least be kept up beneath the windows?",
+      "question_type": "factual",
+      "retrieval_hit": false,
+      "retrieval_precision": 0.0,
+      "retrieval_rr": 0.0,
+      "retrieval_timing_ms": {
+        "embed": 83.52400000148918,
+        "search": 10.756699994090013,
+        "total": 94.28299999854062
+      },
+      "retrieved_sources": [
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt"
+      ]
+    },
+    {
+      "end_to_end_answer": "The answer is: The writer says that they lost some money, but believes that the guardian acted for the best. They also mention that it may all come out right in a year or so.\n\nSource ID: [Source: C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt]",
+      "expected_chunk_count": 1,
+      "generation_answer": "According to the context, the writer says that they won't pretend not being sorry for the loss of their money (Source ID: 1), but they are sure that the guardian acted for the best. They also tell the guardian not to trouble themselves too much about the matter, suggesting that the loss of the money is a regrettable event, but it's not the end of the world.\n\nReferences:\n[Source ID: 1] - The writer's letter (\"DEAR GUARDIAN\") in the context.",
+      "id": "Q5",
+      "question": "In the \u201cDEAR GUARDIAN\u201d note, what does the writer say about losing their money and the guardian\u2019s actions?",
+      "question_type": "factual",
+      "retrieval_hit": true,
+      "retrieval_precision": 1.0,
+      "retrieval_rr": 1.0,
+      "retrieval_timing_ms": {
+        "embed": 84.68240000365768,
+        "search": 10.999200007063337,
+        "total": 95.68420000141487
+      },
+      "retrieved_sources": [
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt"
+      ]
+    },
+    {
+      "end_to_end_answer": "According to the context, Walter asks Professor Robinson if he can pay his expenses and ten percent commission on sales. This is stated in [Source: C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt].\n\nThe answer does not explicitly mention what will happen afterward, but it implies that if this agreement is reached, Walter will be incentivized to do his best.",
+      "expected_chunk_count": 1,
+      "generation_answer": "According to the context, the speaker asks for \"an orchestra\" [Source ID: none], and if they get it, they will conduct just enough to let them sing \"'Ach! dieses Auge, ewig nun offen,' and then I'll die in peace!\" [Source ID: none].",
+      "id": "Q6",
+      "question": "What does the speaker ask for with an orchestra, and what do they say will happen afterward?",
+      "question_type": "factual",
+      "retrieval_hit": true,
+      "retrieval_precision": 0.5,
+      "retrieval_rr": 0.5,
+      "retrieval_timing_ms": {
+        "embed": 84.8892999929376,
+        "search": 11.037500007660128,
+        "total": 95.92920000432059
+      },
+      "retrieved_sources": [
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5995\\pg5995.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5995\\pg5995.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt"
+      ]
+    },
+    {
+      "end_to_end_answer": "According to the context, the question is not explicitly mentioned as being asked of Walter. Therefore, it is not possible to determine how Walter answers this question or what he might not want to admit.\n\nIf you would like me to clarify any other aspect of the passage, please let me know!",
+      "expected_chunk_count": 1,
+      "generation_answer": "According to the context, Walter answers that he hasn't been in the office \"Not long\" (Source ID: none). This suggests that Walter is trying to downplay or hide the fact that his term of service has only just begun, as it has been less than an hour.\n\nNote: The answer is not explicitly stated in the context, but it can be inferred from Walter's response.",
+      "id": "Q7",
+      "question": "How does Walter answer when asked how long he has been in the office, and what does he not want to admit?",
+      "question_type": "factual",
+      "retrieval_hit": true,
+      "retrieval_precision": 1.0,
+      "retrieval_rr": 1.0,
+      "retrieval_timing_ms": {
+        "embed": 85.16809999127872,
+        "search": 10.992700001224875,
+        "total": 96.16380000079516
+      },
+      "retrieved_sources": [
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt"
+      ]
+    },
+    {
+      "end_to_end_answer": "The answer is not explicitly stated in the given context. However, based on the context, it can be inferred that the narrator is struggling to understand the presence and words of Oren Trott, a village boy who was employed by a stranger to find out what room Walter occupied.\n\nThe passage mentions that Oren Trott's employer was described as \"a stranger in the village\" and that Oren didn't take much notice of him. It also says that Oren only wanted to know about the rooms and didn't say what his employer's object was. This raises questions about why Oren was employed by this stranger and what his employer's intentions were.\n\nThe narrator, Walter, is puzzled by Oren's presence and words, as indicated by his question \"What does it all mean, Mr. Manning?\"",
+      "expected_chunk_count": 1,
+      "generation_answer": "The protagonist struggles to account for the presence and words of Colonel Lopez. (Source ID: 5997)",
+      "id": "Q8",
+      "question": "Whose presence and words does he struggle to account for in the passage?",
+      "question_type": "factual",
+      "retrieval_hit": false,
+      "retrieval_precision": 0.0,
+      "retrieval_rr": 0.0,
+      "retrieval_timing_ms": {
+        "embed": 85.39120000205003,
+        "search": 10.515300004044548,
+        "total": 95.90909999678843
+      },
+      "retrieved_sources": [
+        "C:\\Users\\Mamoun\\Desktop\\new\\5996\\pg5996.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5991\\pg5991.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5991\\pg5991.txt"
+      ]
+    },
+    {
+      "end_to_end_answer": "According to the context, the speaker says that the work \"attempts to knit music, text, and action closer together than it was the wont of Italian composers to do before the advent of Wagner set Young Italy in a ferment.\" [Source: C:\\Users\\Mamoun\\Desktop\\new\\5995\\pg5995.txt]\n\nIn other words, the speaker is saying that the work tries to integrate music, text, and action more closely together than was typically done by Italian composers prior to Wagner's influence on young Italian composers.",
+      "expected_chunk_count": 1,
+      "generation_answer": "According to the context, the speaker says that the work (Puccini's) \"tries to knit music, text, and action closer together than it was the wont of Italian composers to do before the advent of Wagner set Young Italy in a ferment\" [Source ID: C:\\Users\\Mamoun\\Desktop\\new\\5995\\pg5995.txt].\n\nIn other words, Puccini's work attempts to integrate music, text, and action more closely together than earlier Italian composers did.",
+      "id": "Q9",
+      "question": "What does the speaker say the work tries to do with music, text, and action, and what did Wagner\u2019s advent do to Young Italy?",
+      "question_type": "factual",
+      "retrieval_hit": true,
+      "retrieval_precision": 0.75,
+      "retrieval_rr": 1.0,
+      "retrieval_timing_ms": {
+        "embed": 86.16209999308921,
+        "search": 10.656099999323487,
+        "total": 96.82079999765847
+      },
+      "retrieved_sources": [
+        "C:\\Users\\Mamoun\\Desktop\\new\\5995\\pg5995.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5995\\pg5995.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5995\\pg5995.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5996\\pg5996.txt"
+      ]
+    },
+    {
+      "end_to_end_answer": "According to the context, it is said that \"never do tea and toast taste so nice as out there in the sun\" (Source: C:\\Users\\Mamoun\\Desktop\\new\\5991\\pg5991.txt).",
+      "expected_chunk_count": 1,
+      "generation_answer": "According to the context, it says that \"never do tea and toast taste so nice as out there in the sun.\" [Source ID: C:\\Users\\Mamoun\\Desktop\\new\\5991\\pg5991.txt]\n\nIn other words, the passage claims that tea and toast taste especially nice when consumed outdoors in the sunshine.",
+      "id": "Q10",
+      "question": "Where does the passage say tea and toast taste especially nice?",
+      "question_type": "factual",
+      "retrieval_hit": true,
+      "retrieval_precision": 0.25,
+      "retrieval_rr": 1.0,
+      "retrieval_timing_ms": {
+        "embed": 83.4002000046894,
+        "search": 10.497399998712353,
+        "total": 93.90010000788607
+      },
+      "retrieved_sources": [
+        "C:\\Users\\Mamoun\\Desktop\\new\\5991\\pg5991.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5992\\pg5992.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5992\\pg5992.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5992\\pg5992.txt"
+      ]
+    },
+    {
+      "end_to_end_answer": "Based on the context, according to the passage, what can easily make the part seem silly is having someone explain something to you as if you were a professor (Source ID: 5993). This is mentioned in the conversation between Walter and Gates when Gates says \"You talk like a professor when you are on your feet\" (Source ID: 5993).",
+      "expected_chunk_count": 1,
+      "generation_answer": "According to the passage, over-acting in the very place where the tendency to do so is strongest can easily make the part seem silly. [Source ID: 5995]",
+      "id": "Q11",
+      "question": "According to the passage, what can easily make the part seem silly?",
+      "question_type": "factual",
+      "retrieval_hit": false,
+      "retrieval_precision": 0.0,
+      "retrieval_rr": 0.0,
+      "retrieval_timing_ms": {
+        "embed": 83.84579999255948,
+        "search": 10.640399996191263,
+        "total": 94.48859999247361
+      },
+      "retrieved_sources": [
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5992\\pg5992.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt"
+      ]
+    },
+    {
+      "end_to_end_answer": "According to the context, it is mentioned that the man (Sherwood) had received his guardian's letter and said: \"I've lost a lot of money... and I've got to leave college at the end of this term.\" \n\nHowever, we need to look at another passage [Source: C:\\Users\\Mamoun\\Desktop\\new\\5994\\pg5994.txt] for further information.\n\nIn this passage, it is mentioned that Sherwood's brother had failed in college. Therefore, the answer to this question would be \"college\".\n\nSo, the correct answer is: college (Source ID: 5994)",
+      "expected_chunk_count": 1,
+      "generation_answer": "According to the context, the answer is:\n\nHe failed in college.\n\nSource ID: [Source: C:\\Users\\Mamoun\\Desktop\\new\\5994\\pg5994.txt]",
+      "id": "Q12",
+      "question": "What does the passage say he failed in?",
+      "question_type": "factual",
+      "retrieval_hit": true,
+      "retrieval_precision": 0.25,
+      "retrieval_rr": 0.5,
+      "retrieval_timing_ms": {
+        "embed": 86.09380001144018,
+        "search": 11.12029999785591,
+        "total": 97.21660001378041
+      },
+      "retrieved_sources": [
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5994\\pg5994.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt"
+      ]
+    },
+    {
+      "end_to_end_answer": "According to the context, there is no mention of a \"pretty thing\" or its remaining trace on the anxious face. The provided context only describes the anxiety and distress of the woman, without mentioning anything about a \"pretty thing\". Therefore, I must conclude that this information is not present in the given context.\n\nNo Source ID is needed for this answer since there is no relevant information provided.",
+      "expected_chunk_count": 1,
+      "generation_answer": "According to the context, the only remaining trace of the \"pretty thing\" is the beautiful eyes. This is stated in the sentence:\n\n\"...except the beautiful eyes, in the little anxious face that I saw for the first time immediately after the wedding...\"\n\nSource ID: [Source: C:\\Users\\Mamoun\\Desktop\\new\\5991\\pg5991.txt]",
+      "id": "Q13",
+      "question": "What trace of the \u201cpretty thing\u201d does the narrator say remained in the anxious face?",
+      "question_type": "factual",
+      "retrieval_hit": true,
+      "retrieval_precision": 0.25,
+      "retrieval_rr": 0.5,
+      "retrieval_timing_ms": {
+        "embed": 85.94730000186246,
+        "search": 10.380499996244907,
+        "total": 96.33030000259168
+      },
+      "retrieved_sources": [
+        "C:\\Users\\Mamoun\\Desktop\\new\\5994\\pg5994.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5991\\pg5991.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5994\\pg5994.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5994\\pg5994.txt"
+      ]
+    },
+    {
+      "end_to_end_answer": "According to the context, the professor offers to pay Walter's fare there and back (to Elm Bank) and trusts that Walter will \"do something to repay him for the outlay\" [Source: C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt].",
+      "expected_chunk_count": 1,
+      "generation_answer": "According to the context, the speaker offers to pay Walter's fare \"there and back\" [Source ID: 5993] and trusts that Walter will do something to repay them for the outlay.",
+      "id": "Q14",
+      "question": "What does the speaker offer to pay for, and what do they trust the person will do in return?",
+      "question_type": "factual",
+      "retrieval_hit": true,
+      "retrieval_precision": 1.0,
+      "retrieval_rr": 1.0,
+      "retrieval_timing_ms": {
+        "embed": 85.30390000669286,
+        "search": 10.538699993048795,
+        "total": 95.84500000346452
+      },
+      "retrieved_sources": [
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt"
+      ]
+    },
+    {
+      "end_to_end_answer": "According to the passage, the narrator describes the hero of the tale by saying:\n\n\"...the truth.\" (Source: C:\\Users\\Mamoun\\Desktop\\new\\5996\\pg5996.txt)\n\nIn other words, the narrator considers the hero to be \"the truth\".",
+      "expected_chunk_count": 1,
+      "generation_answer": "According to the passage, the narrator describes the hero of the tale as \"the truth\" [Source ID: C:\\Users\\Mamoun\\Desktop\\new\\5996\\pg5996.txt].",
+      "id": "Q15",
+      "question": "How does the narrator describe the hero of the tale in the passage?",
+      "question_type": "factual",
+      "retrieval_hit": true,
+      "retrieval_precision": 0.5,
+      "retrieval_rr": 1.0,
+      "retrieval_timing_ms": {
+        "embed": 86.17650000087451,
+        "search": 9.508600007393397,
+        "total": 95.68710000894498
+      },
+      "retrieved_sources": [
+        "C:\\Users\\Mamoun\\Desktop\\new\\5996\\pg5996.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5995\\pg5995.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5995\\pg5995.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5996\\pg5996.txt"
+      ]
+    },
+    {
+      "end_to_end_answer": "According to the context, Kropotkin seems to imply that the wave of enthusiasm for Dostoevski is a phase that has already passed, rather than a new and increasing demonstration. (Source ID: C:\\Users\\Mamoun\\Desktop\\new\\5996\\pg5996.txt)",
+      "expected_chunk_count": 1,
+      "generation_answer": "According to the context, Kropotkin seems to imply that the wave of enthusiasm for Dostoevski is a phase that has already passed, rather than a new and increasing demonstration. [Source ID: C:\\Users\\Mamoun\\Desktop\\new\\5996\\pg5996.txt]",
+      "id": "Q16",
+      "question": "What does Kropotkin seem to imply about the wave of enthusiasm for Dostoevski?",
+      "question_type": "factual",
+      "retrieval_hit": true,
+      "retrieval_precision": 1.0,
+      "retrieval_rr": 1.0,
+      "retrieval_timing_ms": {
+        "embed": 84.95470001071226,
+        "search": 11.110000006738119,
+        "total": 96.06750000966713
+      },
+      "retrieved_sources": [
+        "C:\\Users\\Mamoun\\Desktop\\new\\5996\\pg5996.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5996\\pg5996.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5996\\pg5996.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5996\\pg5996.txt"
+      ]
+    },
+    {
+      "end_to_end_answer": "According to the context, Walter says that he would like to travel and see something of the world (Source ID 5993). He mentions that his guardian may also consider allowing him to travel and start a new business.",
+      "expected_chunk_count": 1,
+      "generation_answer": "According to the context, the speaker says that it would be \"better for you to get your own lesson\" (Source ID: 5993). This is said by Gates to his roommate Walter.",
+      "id": "Q17",
+      "question": "What does the speaker say would be better for Walter?",
+      "question_type": "factual",
+      "retrieval_hit": true,
+      "retrieval_precision": 1.0,
+      "retrieval_rr": 1.0,
+      "retrieval_timing_ms": {
+        "embed": 85.3441999934148,
+        "search": 10.11560000188183,
+        "total": 95.46229999978095
+      },
+      "retrieved_sources": [
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt"
+      ]
+    },
+    {
+      "end_to_end_answer": "According to the context, it is not explicitly stated what Mrs. MacReady knew \"full well.\" The passage only mentions her beliefs and suggestions about Charlotte's problem, but does not provide information about her own knowledge or personal experiences. Therefore, I would answer that the passage does not mention anything that Mrs. MacReady knew \"full well.\"\n\nSource ID: None (since the question is not supported by the provided context)",
+      "expected_chunk_count": 1,
+      "generation_answer": "According to the passage, she knew \"full well\" the healing potency of the play-spirit. [Source: C:\\Users\\Mamoun\\Desktop\\new\\5994\\pg5994.txt]",
+      "id": "Q18",
+      "question": "What did she know \u201cfull well,\u201d according to the passage?",
+      "question_type": "factual",
+      "retrieval_hit": true,
+      "retrieval_precision": 0.75,
+      "retrieval_rr": 1.0,
+      "retrieval_timing_ms": {
+        "embed": 85.48369999334682,
+        "search": 9.831600007601082,
+        "total": 95.31730000162497
+      },
+      "retrieved_sources": [
+        "C:\\Users\\Mamoun\\Desktop\\new\\5994\\pg5994.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5994\\pg5994.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5994\\pg5994.txt"
+      ]
+    },
+    {
+      "end_to_end_answer": "The context does not explicitly mention who turned the corner of the street. The passage jumps from describing F----'s actions to describing Walter's conversation on a train, without mentioning anyone turning a corner. Therefore, I must answer \"Not mentioned\" or \"Unknown\".",
+      "expected_chunk_count": 1,
+      "generation_answer": "According to the context, Ephraim Gregory turned the corner of the street (Source ID: C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt).",
+      "id": "Q19",
+      "question": "Who turned the corner of the street in the passage?",
+      "question_type": "factual",
+      "retrieval_hit": true,
+      "retrieval_precision": 0.25,
+      "retrieval_rr": 0.25,
+      "retrieval_timing_ms": {
+        "embed": 86.62170000025071,
+        "search": 10.33780000580009,
+        "total": 96.96180000901222
+      },
+      "retrieved_sources": [
+        "C:\\Users\\Mamoun\\Desktop\\new\\5992\\pg5992.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5997\\pg5997.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5997\\pg5997.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt"
+      ]
+    },
+    {
+      "end_to_end_answer": "According to the passage, instability is an element in the cultivation of opera so long as it remains an exotic [Source: C:\\Users\\Mamoun\\Desktop\\new\\5995\\pg5995.txt].",
+      "expected_chunk_count": 1,
+      "generation_answer": "According to the passage, instability remains an element in the cultivation of opera so long as it remains an exotic. [Source ID: 5995]\n\nSource: C:\\Users\\Mamoun\\Desktop\\new\\5995\\pg5995.txt]",
+      "id": "Q20",
+      "question": "According to the passage, what remains an element in the cultivation of opera so long as it remains an exotic?",
+      "question_type": "factual",
+      "retrieval_hit": true,
+      "retrieval_precision": 1.0,
+      "retrieval_rr": 1.0,
+      "retrieval_timing_ms": {
+        "embed": 85.5876999994507,
+        "search": 10.203400001046248,
+        "total": 95.79370000574272
+      },
+      "retrieved_sources": [
+        "C:\\Users\\Mamoun\\Desktop\\new\\5995\\pg5995.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5995\\pg5995.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5995\\pg5995.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5995\\pg5995.txt"
+      ]
+    },
+    {
+      "end_to_end_answer": "The answer is not in the context. The texts provided appear to be discussing literary works, including novels and letters, but do not mention an email address or any information about contacting the author through electronic means.",
+      "expected_chunk_count": 0,
+      "id": "Q21",
+      "question": "What is the email address of the author of these texts?",
+      "question_type": "negative",
+      "retrieval_hit": false,
+      "retrieval_precision": 0.0,
+      "retrieval_rr": 0.0,
+      "retrieval_timing_ms": {
+        "embed": 86.187399996561,
+        "search": 10.715399999753572,
+        "total": 96.90520000003744
+      },
+      "retrieved_sources": [
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5992\\pg5992.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5996\\pg5996.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5996\\pg5996.txt"
+      ]
+    },
+    {
+      "end_to_end_answer": "I apologize, but the answer to this question cannot be found in the provided context. The context only mentions cities and locations (Chicago, Dakota) without providing a specific GPS location or any geographical coordinates.\n\nHowever, I can tell you that Chicago is a city located in the state of Illinois, USA, and Dakota refers to the states of North Dakota and South Dakota, also located in the United States.",
+      "expected_chunk_count": 0,
+      "id": "Q22",
+      "question": "What is the exact GPS location where this story takes place?",
+      "question_type": "negative",
+      "retrieval_hit": false,
+      "retrieval_precision": 0.0,
+      "retrieval_rr": 0.0,
+      "retrieval_timing_ms": {
+        "embed": 85.9208000038052,
+        "search": 10.347699993872084,
+        "total": 96.27150000596885
+      },
+      "retrieved_sources": [
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5992\\pg5992.txt"
+      ]
+    },
+    {
+      "end_to_end_answer": "According to the context, the answer is:\n\nwww.gutenberg.org\n\nThis is stated in the following sentences:\n\n[Source: C:\\Users\\Mamoun\\Desktop\\new\\5996\\pg5996.txt]\nMost people start at our website which has the main PG search facility: www.gutenberg.org.\n\n[Source: C:\\Users\\Mamoun\\Desktop\\new\\5994\\pg5994.txt]\nPG search facility: www.gutenberg.org.\n\n[Source: C:\\Users\\Mamoun\\Desktop\\new\\5995\\pg5995.txt]\nMost people start at our website which has the main PG search facility: www.gutenberg.org.\n\nSo, there is no need to look further for an answer.",
+      "expected_chunk_count": 0,
+      "id": "Q23",
+      "question": "What is the official website URL for purchasing these books?",
+      "question_type": "negative",
+      "retrieval_hit": false,
+      "retrieval_precision": 0.0,
+      "retrieval_rr": 0.0,
+      "retrieval_timing_ms": {
+        "embed": 86.01009999983944,
+        "search": 10.961899999529123,
+        "total": 96.97440000309143
+      },
+      "retrieved_sources": [
+        "C:\\Users\\Mamoun\\Desktop\\new\\5996\\pg5996.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5994\\pg5994.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5995\\pg5995.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5995\\pg5995.txt"
+      ]
+    },
+    {
+      "end_to_end_answer": "There is no mention of a phone number in the context provided, which means the answer to this question is \"Not mentioned\" or simply \"Unknown\". The context only provides information about Ephraim Gregory's arrival at home and his conversation with his wife Lucy.",
+      "expected_chunk_count": 0,
+      "id": "Q24",
+      "question": "What is the phone number of Ephraim Gregory?",
+      "question_type": "negative",
+      "retrieval_hit": false,
+      "retrieval_precision": 0.0,
+      "retrieval_rr": 0.0,
+      "retrieval_timing_ms": {
+        "embed": 85.24429998942651,
+        "search": 11.021600003005005,
+        "total": 96.26839999691583
+      },
+      "retrieved_sources": [
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5993\\pg5993.txt"
+      ]
+    },
+    {
+      "end_to_end_answer": "I apologize, but the context does not provide information about the date of birth of Colonel Lopez. The provided text only mentions Colonel Lopez's military career and his actions during the siege of Vera Cruz, but it does not mention his personal details such as his date of birth.\n\nTherefore, I can only say that the answer is \"not mentioned\" or \"unknown\".",
+      "expected_chunk_count": 0,
+      "id": "Q25",
+      "question": "What is the date of birth of Colonel Lopez?",
+      "question_type": "negative",
+      "retrieval_hit": false,
+      "retrieval_precision": 0.0,
+      "retrieval_rr": 0.0,
+      "retrieval_timing_ms": {
+        "embed": 86.12379999249242,
+        "search": 10.222500000963919,
+        "total": 96.34859999641776
+      },
+      "retrieved_sources": [
+        "C:\\Users\\Mamoun\\Desktop\\new\\5997\\pg5997.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5997\\pg5997.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5997\\pg5997.txt",
+        "C:\\Users\\Mamoun\\Desktop\\new\\5997\\pg5997.txt"
+      ]
+    }
+  ],
+  "retrieval_metrics": {
+    "context_recall": 0.0,
+    "embed_latency_ms": 85.10714799980633,
+    "failures": [],
+    "hit_rate": 0.64,
+    "latency_ms": {
+      "avg": 95.79402000177652,
+      "p50": 95.92920000432059,
+      "p95": 97.16816001164261,
+      "p99": 98.15071599325165
+    },
+    "mrr": 0.53,
+    "precision": 0.44,
+    "search_latency_ms": 10.684360000886954
+  },
+  "run_timestamp": "2026-01-27T19:35:35"
+}
