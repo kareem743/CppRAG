@@ -1,15 +1,19 @@
 # Configuration
 
-Configuration is loaded in this order:
+This project supports YAML config, environment variables, and CLI overrides.
 
-## `rag_cli.py`
+---
+
+## Load Order
+
+### `rag_cli.py`
 1) YAML config file (optional)
 2) Environment variables
 3) CLI overrides (highest priority)
 
 `rag_cli.py` supports `RAG_CONFIG` as a fallback when `--config` is not provided.
 
-## `run_eval.py`
+### `run_eval.py`
 1) YAML config file (optional, via `--config`)
 2) Environment variables
 3) CLI overrides (highest priority)
@@ -18,7 +22,9 @@ Configuration is loaded in this order:
 
 The same schema is shared by `rag_cli.py` and `run_eval.py`.
 
-## YAML Config
+---
+
+## YAML Config (Defaults)
 
 Defaults shown below match the code:
 ```
@@ -64,6 +70,10 @@ Validation rules:
 - `target_batch_seconds` must be > 0
 - `server.port` must be 1..65535
 
+Note: `server.host` and `server.port` are defined in config but not used by the current CLI.
+
+---
+
 ## Environment Variables
 
 ```
@@ -94,7 +104,8 @@ Notes:
 - `RAG_CONFIG` is only read by `rag_cli.py` (not `run_eval.py`).
 - `RAG_EXTENSIONS` is comma-separated (e.g. `md,py,cpp`).
 - Boolean env vars use `"true"` / `"false"`.
-- `server.host` and `server.port` are defined in config but not used by the current CLI.
+
+---
 
 ## CLI Overrides
 

@@ -2,6 +2,8 @@
 
 This document describes what the code currently does.
 
+---
+
 ## High-Level Flow
 
 ### Ingestion
@@ -21,41 +23,25 @@ This document describes what the code currently does.
 ### Serve (Interactive)
 - `rag_cli.py serve` builds an `Index` and then loops on a terminal prompt.
 
+---
+
 ## Core Modules
 
-- `rag/index.py`  
-  Orchestrates ingestion and query. Handles file scanning, incremental state,
-  adaptive batch sizing, chunking, embedding, and LanceDB operations.
+| Module | Responsibility |
+| --- | --- |
+| `rag/index.py` | Orchestrates ingestion/query, batch sizing, and vector store ops |
+| `rag/ingestion_state.py` | Tracks file hashes and metadata |
+| `rag/batch_sizer.py` | Adaptive batch sizing logic |
+| `rag/chunker.py` | C++ chunker wrapper |
+| `rag/embedders.py` | FastEmbed adapter with GPU/CPU fallback |
+| `rag/vector_store.py` | LanceDB schema, insert, search, compaction |
+| `rag/rag.py` | Prompt builder and answer orchestration |
+| `rag/llm.py` | `OllamaLLM` wrapper |
+| `rag/logging_utils.py` | Structured logging + timing decorator |
+| `rag/config.py` | Config loading and validation |
+| `rag/interfaces.py` / `rag/errors.py` | Shared interfaces and errors |
 
-- `rag/ingestion_state.py`  
-  Tracks file hashes and metadata to skip unchanged files.
-
-- `rag/batch_sizer.py`  
-  Adaptive batch sizing based on recent batch durations.
-
-- `rag/chunker.py`  
-  Wrapper for the C++ chunker (`rag_core.IngestionEngine`).
-
-- `rag/embedders.py`  
-  FastEmbed adapter with GPU/CPU fallback and retry logic.
-
-- `rag/vector_store.py`  
-  LanceDB adapter for schema creation, insertion, search, and compaction.
-
-- `rag/rag.py`  
-  Builds the prompt and calls the local LLM for a final answer.
-
-- `rag/llm.py`  
-  `OllamaLLM` wrapper that calls `ollama run <model>`.
-
-- `rag/logging_utils.py`  
-  Key-value structured logging and a timing decorator.
-
-- `rag/config.py`  
-  Configuration loading and validation (YAML, env, CLI).
-
-- `rag/interfaces.py` / `rag/errors.py`  
-  Shared interfaces and error types.
+---
 
 ## Indexing Files
 
@@ -64,6 +50,8 @@ Default extensions (override with `--extensions` or `RAG_EXTENSIONS`):
 .txt .md .markdown .rst .py .json .yaml .yml .toml .csv .ts .js .html .css
 .cpp .cc .c .h .hpp .java .go .rs .sh
 ```
+
+---
 
 ## State and Storage
 

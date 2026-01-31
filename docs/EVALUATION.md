@@ -3,6 +3,8 @@
 Evaluation is run via `run_eval.py`. It produces JSON results plus an optional
 comparison report.
 
+---
+
 ## Commands
 
 Generate a dataset skeleton:
@@ -42,6 +44,8 @@ Or set a baseline from an existing results file:
 python run_eval.py set-baseline --results eval_results/latest.json
 ```
 
+---
+
 ## What Happens During Evaluation
 
 1) Index readiness is checked (LanceDB table exists and has data).
@@ -49,6 +53,8 @@ python run_eval.py set-baseline --results eval_results/latest.json
 3) Retrieval metrics are computed from vector search.
 4) Generation metrics use perfect context built from ground-truth sources.
 5) End-to-end metrics call `RAGSystem.answer()` for every question.
+
+---
 
 ## Key Metrics
 
@@ -75,6 +81,8 @@ python run_eval.py set-baseline --results eval_results/latest.json
 - Latency (avg + P95)
 - Failure list
 
+---
+
 ## Output Files
 
 `eval_results/latest.json`:
@@ -86,6 +94,8 @@ python run_eval.py set-baseline --results eval_results/latest.json
 `eval_results/comparison_report.txt`:
 - Baseline vs latest deltas + regression warnings (created with `--compare-baseline`).
 
+---
+
 ## Exit Codes
 
 - `0`: Success, no regression detected.
@@ -96,6 +106,8 @@ Regression rules (from code):
 - Hit Rate drop > 0.10 -> CRITICAL (exit 1)
 - MRR drop > 0.10 -> WARNING (exit 1)
 - Avg latency increase > 50% -> PERFORMANCE REGRESSION (exit 1)
+
+---
 
 ## Useful Flags
 

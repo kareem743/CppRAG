@@ -1,10 +1,16 @@
 # CLI Usage
 
-The CLI lives in `rag_cli.py` and exposes three commands:
+The CLI lives in `rag_cli.py` and exposes three commands.
 
-- `ingest`: build or update a LanceDB index from a directory.
-- `query`: answer a single question.
-- `serve`: run an interactive question loop in the terminal.
+---
+
+## Command Map
+
+| Command | Purpose |
+| --- | --- |
+| `ingest` | Build or update the LanceDB index from a directory |
+| `query` | Answer a single question |
+| `serve` | Interactive question loop |
 
 All commands support `--config` and `--verbose`.
 
@@ -56,6 +62,8 @@ python rag_cli.py serve <DIRECTORY>
 
 Type `exit` or `quit` to end the loop.
 
+---
+
 ## CLI Flags (Summary)
 
 ### Shared
@@ -88,6 +96,8 @@ Type `exit` or `quit` to end the loop.
 
 ### Serve
 - `--config`, `--dry-run`, `--verbose`
+
+---
 
 ## Default File Extensions
 

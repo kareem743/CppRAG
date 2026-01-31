@@ -1,5 +1,9 @@
 # Troubleshooting
 
+Common issues and fixes based on current code behavior.
+
+---
+
 ## "Index not ready" or "table not found"
 
 Cause:

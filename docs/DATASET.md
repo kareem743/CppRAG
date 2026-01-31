@@ -5,6 +5,8 @@ The golden dataset is the ground truth for evaluation. `run_eval.py` accepts:
 - JSON array (recommended for editing)
 - JSONL (one object per line)
 
+---
+
 ## Schema
 
 ```
@@ -27,6 +29,8 @@ The golden dataset is the ground truth for evaluation. `run_eval.py` accepts:
 - `question_type`: One of `factual`, `multi-hop`, `negative`.
 - `expected_chunk_count`: Number of chunks expected to contain the answer.
 
+---
+
 ## Creation Guidance
 
 Minimum requirements:
@@ -39,6 +43,8 @@ Validation rules (enforced by code):
 - No duplicate questions (recommended).
 - Each entry must include all required fields.
 - If the answer is not in the corpus, use `question_type = "negative"` and `ground_truth_sources = []`.
+
+---
 
 ## Generator
 
