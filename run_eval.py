@@ -582,8 +582,12 @@ def evaluate(
     multi_source_recalls = []
 
     per_question = []
+    total_questions = len(dataset)
+    print(f"Evaluation started: {total_questions} questions")
 
     for idx, entry in enumerate(dataset, start=1):
+        if idx == 1 or idx % 10 == 0 or idx == total_questions:
+            print(f"[Retrieval] {idx}/{total_questions}")
         question = entry["question"]
         gt_sources = entry["ground_truth_sources"]
         expected_chunk_count = entry.get("expected_chunk_count", 1)
@@ -665,10 +669,15 @@ def evaluate(
     citation_scores = []
     generation_latencies = []
     generation_failures = []
+    generation_total = sum(1 for entry in dataset if entry.get("question_type") != "negative")
+    generation_done = 0
 
     for idx, entry in enumerate(dataset, start=1):
         if entry.get("question_type") == "negative":
             continue
+        generation_done += 1
+        if generation_done == 1 or generation_done % 10 == 0 or generation_done == generation_total:
+            print(f"[Generation] {generation_done}/{generation_total}")
         try:
             context = _build_context_for_sources(
                 chunker,
@@ -728,6 +737,8 @@ def evaluate(
     end_to_end_failures = []
 
     for idx, entry in enumerate(dataset, start=1):
+        if idx == 1 or idx % 10 == 0 or idx == total_questions:
+            print(f"[End-to-End] {idx}/{total_questions}")
         try:
             start = perf_counter()
             answer = rag.answer(entry["question"])
