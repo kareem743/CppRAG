@@ -1,18 +1,22 @@
 # Documentation Index
 
-Start here for project documentation.
+Start here. This index mirrors what the code actually does today.
 
 ## Overview
+
 - `README.md` — Project summary and quick start.
 - `docs/ARCHITECTURE.md` — System structure and data flow.
 
-## Getting Started
-- `docs/USAGE.md` — How to ingest, query, and serve.
-- `docs/CONFIG.md` — Config files, env vars, and CLI overrides.
+## Using the CLI
+
+- `docs/USAGE.md` — Commands, flags, and examples.
+- `docs/CONFIG.md` — YAML config, env vars, and overrides.
 
 ## Evaluation
-- `docs/EVALUATION.md` — Full evaluation workflow.
+
+- `docs/EVALUATION.md` — Evaluation workflow, outputs, and exit codes.
 - `docs/DATASET.md` — Golden dataset schema and guidance.
 
 ## Support
+
 - `docs/TROUBLESHOOTING.md` — Common issues and fixes.

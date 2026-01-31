@@ -1,13 +1,11 @@
 # Evaluation
 
-The evaluation system is a standalone script: `run_eval.py`. It produces:
-- `eval_results/latest.json`
-- `eval_results/baseline.json` (when set)
-- `eval_results/comparison_report.txt` (when comparing)
+Evaluation is run via `run_eval.py`. It produces JSON results plus an optional
+comparison report.
 
 ## Commands
 
-Generate a dataset skeleton (manual verification required):
+Generate a dataset skeleton:
 ```
 python run_eval.py generate-dataset \
   --source-dir <PATH_TO_DOCS> \
@@ -44,18 +42,15 @@ Or set a baseline from an existing results file:
 python run_eval.py set-baseline --results eval_results/latest.json
 ```
 
-## Phases
+## What Happens During Evaluation
 
-1) Retrieval Quality  
-Uses `Index.query()` only. No LLM calls.
+1) Index readiness is checked (LanceDB table exists and has data).
+2) `Index` is created for `--index-dir` (incremental ingest may run).
+3) Retrieval metrics are computed from vector search.
+4) Generation metrics use perfect context built from ground-truth sources.
+5) End-to-end metrics call `RAGSystem.answer()` for every question.
 
-2) Generation Quality  
-Builds perfect context directly from `ground_truth_sources` and calls the LLM.
-
-3) End-to-End  
-Calls `rag_system.answer()` and compares with ground truth.
-
-## Metrics
+## Key Metrics
 
 ### Retrieval
 - Hit Rate @ K
@@ -63,19 +58,22 @@ Calls `rag_system.answer()` and compares with ground truth.
 - Precision @ K
 - Context Recall (multi-source)
 - Latency (P50/P95/P99 + avg)
-- Embedding vs search timing
+- Embed vs search timing
+- Failure list (per question)
 
 ### Generation (Perfect Context)
-- Faithfulness score (1–5)
-- Completeness score (1–5)
+- Faithfulness score (1-5)
+- Completeness score (1-5)
 - Citation accuracy
-- Latency
+- Latency (avg + P95)
+- Failure list (LLM or judge errors)
 
 ### End-to-End
 - Semantic similarity (cosine over embeddings)
-- Correctness score (1–5)
-- "I don't know" accuracy (negative questions)
-- Latency
+- Correctness score (1-5)
+- "I don't know" accuracy for negative questions
+- Latency (avg + P95)
+- Failure list
 
 ## Output Files
 
@@ -83,24 +81,37 @@ Calls `rag_system.answer()` and compares with ground truth.
 - Full metrics + per-question data.
 
 `eval_results/baseline.json`:
-- Snapshot used for regressions.
+- Snapshot used for regression checks (created with `--set-baseline`).
 
 `eval_results/comparison_report.txt`:
-- Baseline vs latest deltas + regression warnings.
+- Baseline vs latest deltas + regression warnings (created with `--compare-baseline`).
 
 ## Exit Codes
 
 - `0`: Success, no regression detected.
-- `1`: Regression detected vs baseline.
+- `1`: Regression detected vs baseline (only when `--compare-baseline` is used).
 - `2`: Fatal error (missing dataset/index/etc).
 
-Regression rules:
-- Hit Rate drop > 0.10 → CRITICAL (exit 1)
-- MRR drop > 0.10 → WARNING (exit 1)
-- Avg latency increase > 50% → PERFORMANCE REGRESSION (exit 1)
+Regression rules (from code):
+- Hit Rate drop > 0.10 -> CRITICAL (exit 1)
+- MRR drop > 0.10 -> WARNING (exit 1)
+- Avg latency increase > 50% -> PERFORMANCE REGRESSION (exit 1)
+
+## Useful Flags
+
+```
+--extensions "md,py,cpp"
+--num-questions 50
+--negative-count 5
+--snippet-chars 240
+--seed 7
+--top-k 5
+--model llama3
+--prefer-gpu true
+```
 
 ## Notes
 
-- The evaluator uses Ollama for answer generation and judge prompts.
-- If LLM calls fail, judge-based metrics are skipped but other metrics continue.
-- If the LanceDB table is missing or empty, evaluation will exit with a clear message.
+- The evaluator calls Ollama for both answers and judge prompts.
+- Judge-based metrics are skipped if those LLM calls fail.
+- If the LanceDB table is missing or empty, evaluation exits with a clear message.

@@ -1,41 +1,54 @@
-# Usage
+# CLI Usage
 
-This project exposes a CLI in `rag_cli.py` with three commands:
-- `ingest`: build/update the vector index from a directory.
+The CLI lives in `rag_cli.py` and exposes three commands:
+
+- `ingest`: build or update a LanceDB index from a directory.
 - `query`: answer a single question.
-- `serve`: interactive question loop.
+- `serve`: run an interactive question loop in the terminal.
 
-All commands accept `--config` and the same overrides (see `docs/CONFIG.md`).
+All commands support `--config` and `--verbose`.
 
-## Ingest
+## Ingest (Build or Update an Index)
 
 ```
 python rag_cli.py ingest <DIRECTORY>
 ```
 
+Key behaviors (from code):
+- Incremental ingestion uses `lancedb_data/ingestion_state.json` by default.
+- Only changed files are re-chunked and re-embedded.
+- Batch size can auto-adjust when `--adaptive-batching` is enabled.
+
 Common overrides:
 ```
-python rag_cli.py ingest <DIRECTORY> --chunk-size 300 --overlap 50 --extensions "md,py"
+python rag_cli.py ingest <DIRECTORY> \
+  --chunk-size 200 \
+  --overlap 50 \
+  --extensions "md,py,cpp" \
+  --files-per-batch 1500 \
+  --adaptive-batching
 ```
 
-Notes:
-- Ingestion scans files by extension (defaults include `.md`, `.py`, `.cpp`, etc).
-- Chunks are created by the C++ chunking engine.
-- Embeddings are computed with `fastembed`.
-- Vectors are stored in LanceDB (`./lancedb_data` by default).
+Dry run:
+```
+python rag_cli.py ingest <DIRECTORY> --dry-run
+```
 
-## Query (single question)
+## Query (Single Question)
 
 ```
 python rag_cli.py query <DIRECTORY> "What does this project do?"
 ```
+
+Notes:
+- `query` builds the index before answering (uses incremental ingestion).
 
 Overrides:
 ```
 python rag_cli.py query <DIRECTORY> "Question" --top-k 5 --model llama3
 ```
 
-## Serve (interactive)
+## Serve (Interactive)
 
 ```
 python rag_cli.py serve <DIRECTORY>
@@ -43,9 +56,50 @@ python rag_cli.py serve <DIRECTORY>
 
 Type `exit` or `quit` to end the loop.
 
-## Environment Dependencies
+## CLI Flags (Summary)
 
-- Python 3.x
-- `rag_core.pyd` (C++ extension present in repo)
-- `fastembed`, `lancedb`
+### Shared
+- `--config`, `-c`: YAML config file path
+- `--verbose`, `-v`: enable debug logging
+
+### Ingest-only
+- `--chunk-size`, `--overlap`
+- `--extensions` (comma-separated)
+- `--files-per-batch`
+- `--adaptive-batching` / `--no-adaptive-batching`
+- `--min-files-per-batch`, `--max-files-per-batch`
+- `--target-batch-seconds`
+- `--db-path`, `--table-name`
+- `--prefer-gpu` / `--no-prefer-gpu`
+- `--embed-retries`
+- `--embed-gpu-batch`, `--embed-cpu-batch`
+- `--log-level`: override log level (INFO, DEBUG, etc.)
+- `--dry-run`
+
+### Query
+- `--top-k`
+- `--model`
+- `--chunk-size`, `--overlap`, `--extensions` (rebuilds index as needed)
+- `--files-per-batch`, `--adaptive-batching`, `--min-files-per-batch`,
+  `--max-files-per-batch`, `--target-batch-seconds`
+- `--db-path`, `--table-name`
+- `--log-level`
+- `--dry-run`
+
+### Serve
+- `--config`, `--dry-run`, `--verbose`
+
+## Default File Extensions
+
+If no `--extensions` are provided, ingestion includes:
+```
+.txt .md .markdown .rst .py .json .yaml .yml .toml .csv .ts .js .html .css
+.cpp .cc .c .h .hpp .java .go .rs .sh
+```
+
+## Dependencies Used At Runtime
+
+- Python 3.11+
+- `rag_core.pyd` (C++ extension)
+- `fastembed`, `lancedb`, `typer`
 - Ollama installed and a local model pulled (default model: `llama3`)

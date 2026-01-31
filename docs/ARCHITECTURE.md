@@ -1,51 +1,71 @@
 # Architecture
 
+This document describes what the code currently does.
+
 ## High-Level Flow
 
-Ingestion:
+### Ingestion
 1) `rag_cli.py ingest` builds an `Index`.
-2) `Index` scans files and uses the C++ chunker (`rag_core`) to chunk text.
-3) `FastEmbedEmbedder` embeds each chunk.
-4) `LanceDBVectorStore` stores vectors + text + source.
+2) `Index` scans files and compares against `ingestion_state.json`.
+3) `RagCoreChunker` uses the C++ engine (`rag_core.IngestionEngine`).
+4) `FastEmbedEmbedder` embeds chunks (GPU-first, CPU fallback).
+5) `LanceDBVectorStore` stores vectors, text, and source paths.
+6) Vector store compaction is attempted after ingestion.
 
-Query:
-1) `rag_cli.py query` builds the `Index` and runs `Index.query(question)`.
-2) `Index.query` embeds the question and searches LanceDB.
-3) `RAGSystem` formats retrieved chunks into context.
-4) `OllamaLLM` generates an answer with citations.
+### Query
+1) `rag_cli.py query` builds an `Index` (incremental ingest may run).
+2) `Index.query()` embeds the question and searches LanceDB.
+3) `RAGSystem` formats retrieved chunks into a prompt with `[Source: ...]` tags.
+4) `OllamaLLM` calls `ollama run <model>` to generate the answer.
+
+### Serve (Interactive)
+- `rag_cli.py serve` builds an `Index` and then loops on a terminal prompt.
 
 ## Core Modules
 
 - `rag/index.py`  
-  Orchestrates ingestion and querying. Handles file scanning, batch sizing, chunking, embedding, and LanceDB storage.
+  Orchestrates ingestion and query. Handles file scanning, incremental state,
+  adaptive batch sizing, chunking, embedding, and LanceDB operations.
+
+- `rag/ingestion_state.py`  
+  Tracks file hashes and metadata to skip unchanged files.
+
+- `rag/batch_sizer.py`  
+  Adaptive batch sizing based on recent batch durations.
 
 - `rag/chunker.py`  
-  Wraps the C++ chunker (`rag_core.IngestionEngine`).
+  Wrapper for the C++ chunker (`rag_core.IngestionEngine`).
 
 - `rag/embedders.py`  
-  Embedding adapter using `fastembed` with GPU/CPU fallback.
+  FastEmbed adapter with GPU/CPU fallback and retry logic.
 
 - `rag/vector_store.py`  
-  LanceDB adapter for schema creation, vector insertion, and search.
+  LanceDB adapter for schema creation, insertion, search, and compaction.
 
 - `rag/rag.py`  
-  `RAGSystem` that formats context and calls the LLM.
+  Builds the prompt and calls the local LLM for a final answer.
 
 - `rag/llm.py`  
-  `OllamaLLM` wrapper using `ollama run <model>`.
+  `OllamaLLM` wrapper that calls `ollama run <model>`.
 
-- `rag/models.py`  
-  `Chunk` dataclass storing `text` and `source`.
+- `rag/logging_utils.py`  
+  Key-value structured logging and a timing decorator.
 
 - `rag/config.py`  
-  Configuration loading from YAML + environment + CLI overrides.
+  Configuration loading and validation (YAML, env, CLI).
+
+- `rag/interfaces.py` / `rag/errors.py`  
+  Shared interfaces and error types.
 
 ## Indexing Files
 
-By default, ingestion includes these extensions:
+Default extensions (override with `--extensions` or `RAG_EXTENSIONS`):
 ```
 .txt .md .markdown .rst .py .json .yaml .yml .toml .csv .ts .js .html .css
 .cpp .cc .c .h .hpp .java .go .rs .sh
 ```
 
-Override with `--extensions "md,py"` or `RAG_EXTENSIONS`.
+## State and Storage
+
+- Vectors live in `./lancedb_data` by default.
+- Incremental ingestion uses `./lancedb_data/ingestion_state.json`.

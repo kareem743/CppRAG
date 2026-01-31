@@ -10,13 +10,21 @@ Fix:
 python rag_cli.py ingest <DIRECTORY>
 ```
 
+## "No new or changed files to ingest."
+
+Cause:
+- Incremental ingestion determined nothing changed.
+
+Fix:
+- Touch or edit files to force re-ingestion, or delete
+  `lancedb_data/ingestion_state.json` to rebuild from scratch.
+
 ## Ollama errors ("ollama" not found / model missing)
 
 Cause:
-- Ollama is not installed or the model isn't pulled.
+- Ollama is not installed or the model is not pulled.
 
 Fix:
-- Install Ollama and pull the model:
 ```
 ollama pull llama3
 ```
@@ -24,19 +32,34 @@ ollama pull llama3
 ## GPU embedding failures
 
 Cause:
-- GPU provider not available.
+- GPU provider not available for `fastembed`.
 
 Fix:
-- Set `--prefer-gpu false` or `RAG_PREFER_GPU=false` to force CPU embeddings.
+- Use CPU embeddings:
+```
+python rag_cli.py ingest <DIRECTORY> --no-prefer-gpu
+```
 
 ## C++ chunker errors
 
 Cause:
-- `rag_core.pyd` not found or incompatible.
+- `rag_core.pyd` missing or incompatible with your Python version.
 
 Fix:
 - Ensure `rag_core.pyd` exists in the project root.
 - Confirm the Python version matches the compiled extension.
+
+## Slow ingestion
+
+Cause:
+- Large files, slow disk, or aggressive batch sizes.
+
+Fix:
+- Lower `--files-per-batch` or set `--target-batch-seconds` to a smaller value.
+- Disable adaptive batching to debug:
+```
+python rag_cli.py ingest <DIRECTORY> --no-adaptive-batching
+```
 
 ## Dataset validation errors
 
@@ -49,7 +72,7 @@ Fix:
 ## Slow evaluation
 
 Cause:
-- LLM judge prompts can be slow, especially with large contexts.
+- LLM judge prompts can be slow with large contexts.
 
 Fix:
 - Reduce dataset size for quick checks.
