@@ -1,4 +1,4 @@
-# Local RAG (PythonProject4)
+# Local RAG 
 
 Local retrieval-augmented question answering over your files. This project uses a
 C++ chunker (`rag_core.pyd`), FastEmbed embeddings, LanceDB storage, and a local

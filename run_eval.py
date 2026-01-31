@@ -1,15 +1,15 @@
-import argparse
 import json
 import math
 import os
 import re
 import statistics
-import sys
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from time import perf_counter
 from typing import Dict, Iterable, List, Optional, Tuple
+
+import typer
 
 from rag.config import AppConfig, build_config
 from rag.embedders import FastEmbedEmbedder
@@ -19,6 +19,9 @@ from rag.rag import RAGSystem
 from rag.vector_store import LanceDBVectorStore
 from rag.chunker import RagCoreChunker
 
+app = typer.Typer(
+    help="RAG evaluation system with dataset generation, evaluation, and baseline comparison.",
+)
 
 DATASET_REQUIRED_FIELDS = {
     "question",
@@ -89,7 +92,32 @@ def source_matches(expected: str, observed: str) -> bool:
     return False
 
 
-def build_overrides(args: argparse.Namespace) -> dict:
+def _parse_extensions(raw: Optional[str]) -> Optional[List[str]]:
+    if raw is None:
+        return None
+    parts = [part.strip() for part in raw.split(",") if part.strip()]
+    return parts or None
+
+
+def _build_overrides(
+    chunk_size: Optional[int],
+    overlap: Optional[int],
+    extensions: Optional[str],
+    files_per_batch: Optional[int],
+    adaptive_batching: Optional[bool],
+    min_files_per_batch: Optional[int],
+    max_files_per_batch: Optional[int],
+    target_batch_seconds: Optional[float],
+    top_k: Optional[int],
+    model: Optional[str],
+    db_path: Optional[str],
+    table_name: Optional[str],
+    prefer_gpu: Optional[bool],
+    embed_retries: Optional[int],
+    embed_gpu_batch: Optional[int],
+    embed_cpu_batch: Optional[int],
+    log_level: Optional[str],
+) -> dict:
     overrides: dict = {}
 
     def _set(path: List[str], value) -> None:
@@ -98,48 +126,41 @@ def build_overrides(args: argparse.Namespace) -> dict:
             node = node.setdefault(key, {})
         node[path[-1]] = value
 
-    if args.chunk_size is not None:
-        _set(["ingestion", "chunk_size"], args.chunk_size)
-    if args.overlap is not None:
-        _set(["ingestion", "overlap"], args.overlap)
-    if args.extensions is not None:
-        _set(["ingestion", "extensions"], _parse_extensions(args.extensions))
-    if args.files_per_batch is not None:
-        _set(["ingestion", "files_per_batch"], args.files_per_batch)
-    if args.adaptive_batching is not None:
-        _set(["ingestion", "adaptive_batching"], args.adaptive_batching)
-    if args.min_files_per_batch is not None:
-        _set(["ingestion", "min_files_per_batch"], args.min_files_per_batch)
-    if args.max_files_per_batch is not None:
-        _set(["ingestion", "max_files_per_batch"], args.max_files_per_batch)
-    if args.target_batch_seconds is not None:
-        _set(["ingestion", "target_batch_seconds"], args.target_batch_seconds)
-    if args.top_k is not None:
-        _set(["query", "top_k"], args.top_k)
-    if args.model is not None:
-        _set(["llm", "model"], args.model)
-    if args.db_path is not None:
-        _set(["vector_store", "db_path"], args.db_path)
-    if args.table_name is not None:
-        _set(["vector_store", "table_name"], args.table_name)
-    if args.prefer_gpu is not None:
-        _set(["embedding", "prefer_gpu"], args.prefer_gpu)
-    if args.embed_retries is not None:
-        _set(["embedding", "max_retries"], args.embed_retries)
-    if args.embed_gpu_batch is not None:
-        _set(["embedding", "gpu_batch_size"], args.embed_gpu_batch)
-    if args.embed_cpu_batch is not None:
-        _set(["embedding", "cpu_batch_size"], args.embed_cpu_batch)
-    if args.log_level is not None:
-        _set(["logging", "level"], args.log_level)
+    if chunk_size is not None:
+        _set(["ingestion", "chunk_size"], chunk_size)
+    if overlap is not None:
+        _set(["ingestion", "overlap"], overlap)
+    if extensions is not None:
+        _set(["ingestion", "extensions"], _parse_extensions(extensions))
+    if files_per_batch is not None:
+        _set(["ingestion", "files_per_batch"], files_per_batch)
+    if adaptive_batching is not None:
+        _set(["ingestion", "adaptive_batching"], adaptive_batching)
+    if min_files_per_batch is not None:
+        _set(["ingestion", "min_files_per_batch"], min_files_per_batch)
+    if max_files_per_batch is not None:
+        _set(["ingestion", "max_files_per_batch"], max_files_per_batch)
+    if target_batch_seconds is not None:
+        _set(["ingestion", "target_batch_seconds"], target_batch_seconds)
+    if top_k is not None:
+        _set(["query", "top_k"], top_k)
+    if model is not None:
+        _set(["llm", "model"], model)
+    if db_path is not None:
+        _set(["vector_store", "db_path"], db_path)
+    if table_name is not None:
+        _set(["vector_store", "table_name"], table_name)
+    if prefer_gpu is not None:
+        _set(["embedding", "prefer_gpu"], prefer_gpu)
+    if embed_retries is not None:
+        _set(["embedding", "max_retries"], embed_retries)
+    if embed_gpu_batch is not None:
+        _set(["embedding", "gpu_batch_size"], embed_gpu_batch)
+    if embed_cpu_batch is not None:
+        _set(["embedding", "cpu_batch_size"], embed_cpu_batch)
+    if log_level is not None:
+        _set(["logging", "level"], log_level)
     return overrides
-
-
-def _parse_extensions(raw: Optional[str]) -> Optional[List[str]]:
-    if raw is None:
-        return None
-    parts = [part.strip() for part in raw.split(",") if part.strip()]
-    return parts or None
 
 
 def resolve_config(config_path: Optional[str], overrides: dict) -> AppConfig:
@@ -340,10 +361,18 @@ def _build_context_for_sources(
     return "\n\n".join(context_parts)
 
 
-def generate_dataset(args: argparse.Namespace) -> int:
-    overrides = build_overrides(args)
-    cfg = resolve_config(args.config, overrides)
-    source_dir = Path(args.source_dir)
+def generate_dataset(
+    source_dir: Path,
+    output: Path,
+    num_questions: int,
+    negative_count: int,
+    snippet_chars: int,
+    seed: int,
+    extensions: Optional[str],
+    config: Optional[str],
+    overrides: dict,
+) -> int:
+    cfg = resolve_config(config, overrides)
     if not source_dir.exists():
         print(f"Source directory not found: {source_dir}")
         return 2
@@ -352,8 +381,8 @@ def generate_dataset(args: argparse.Namespace) -> int:
     file_paths = []
     for root, _, files in os.walk(source_dir):
         for file in files:
-            if args.extensions:
-                valid_exts = {ext if ext.startswith(".") else f".{ext}" for ext in _parse_extensions(args.extensions)}
+            if extensions:
+                valid_exts = {ext if ext.startswith(".") else f".{ext}" for ext in _parse_extensions(extensions)}
                 if Path(file).suffix.lower() not in valid_exts:
                     continue
             file_paths.append(os.path.join(root, file))
@@ -367,18 +396,18 @@ def generate_dataset(args: argparse.Namespace) -> int:
         print("Chunker returned no chunks.")
         return 2
 
-    if args.num_questions > len(chunks):
-        print(f"Requested {args.num_questions} questions, but only {len(chunks)} chunks available.")
+    if num_questions > len(chunks):
+        print(f"Requested {num_questions} questions, but only {len(chunks)} chunks available.")
         return 2
 
     rng = __import__("random")
-    rng.seed(args.seed)
-    selected = rng.sample(chunks, args.num_questions)
+    rng.seed(seed)
+    selected = rng.sample(chunks, num_questions)
 
     entries = []
     for chunk in selected:
         snippet = chunk.text.strip().replace("\n", " ")
-        snippet = snippet[: args.snippet_chars]
+        snippet = snippet[:snippet_chars]
         entries.append(
             {
                 "question": "TODO",
@@ -390,7 +419,7 @@ def generate_dataset(args: argparse.Namespace) -> int:
             }
         )
 
-    for _ in range(args.negative_count):
+    for _ in range(negative_count):
         entries.append(
             {
                 "question": "TODO (negative)",
@@ -402,7 +431,6 @@ def generate_dataset(args: argparse.Namespace) -> int:
             }
         )
 
-    output = Path(args.output)
     save_json(output, entries)
     print(f"Wrote dataset skeleton to {output}")
     print("Manual verification required: replace TODO entries with real questions/answers.")
@@ -486,82 +514,28 @@ def compare_results(baseline: Dict, latest: Dict) -> Dict[str, object]:
     return {"report": "\n".join(report_lines), "exit_code": exit_code}
 
 
-def set_baseline(args: argparse.Namespace) -> int:
-    results_path = Path(args.results)
+def set_baseline(results_path: Path, output_dir: Path) -> int:
     if not results_path.exists():
         print(f"Results not found: {results_path}")
         return 2
     data = _load_json(results_path)
-    output_dir = Path(args.output_dir)
     baseline_path = output_dir / "baseline.json"
     save_json(baseline_path, data)
     print(f"Baseline saved to {baseline_path}")
     return 0
 
 
-def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="RAG evaluation system")
-    sub = parser.add_subparsers(dest="command", required=True)
-
-    common = argparse.ArgumentParser(add_help=False)
-    common.add_argument("--config", help="Path to YAML config file")
-    common.add_argument("--chunk-size", type=int, help="Tokens per chunk")
-    common.add_argument("--overlap", type=int, help="Token overlap per chunk")
-    common.add_argument("--extensions", help="Comma-separated extensions")
-    common.add_argument("--files-per-batch", type=int, help="Initial batch size")
-    common.add_argument("--adaptive-batching", type=lambda v: v.lower() == "true", help="Enable adaptive batching")
-    common.add_argument("--min-files-per-batch", type=int, help="Minimum batch size")
-    common.add_argument("--max-files-per-batch", type=int, help="Maximum batch size")
-    common.add_argument("--target-batch-seconds", type=float, help="Target batch duration")
-    common.add_argument("--top-k", type=int, help="Top K chunks")
-    common.add_argument("--model", help="Ollama model name")
-    common.add_argument("--db-path", help="LanceDB storage path")
-    common.add_argument("--table-name", help="LanceDB table name")
-    common.add_argument("--prefer-gpu", type=lambda v: v.lower() == "true", help="Prefer GPU embeddings")
-    common.add_argument("--embed-retries", type=int, help="Embedding retry count")
-    common.add_argument("--embed-gpu-batch", type=int, help="GPU batch size")
-    common.add_argument("--embed-cpu-batch", type=int, help="CPU batch size")
-    common.add_argument("--log-level", help="Logging level")
-
-    gen = sub.add_parser("generate-dataset", parents=[common], help="Generate dataset skeleton")
-    gen.add_argument("--source-dir", required=True, help="Directory to scan")
-    gen.add_argument("--output", required=True, help="Output JSON file")
-    gen.add_argument("--num-questions", type=int, default=50, help="Number of questions to generate")
-    gen.add_argument("--negative-count", type=int, default=5, help="Number of negative placeholders")
-    gen.add_argument("--snippet-chars", type=int, default=240, help="Snippet length")
-    gen.add_argument("--seed", type=int, default=7, help="Random seed")
-
-    eval_cmd = sub.add_parser("evaluate", parents=[common], help="Run evaluation")
-    eval_cmd.add_argument("--dataset", required=True, help="Path to dataset JSON/JSONL")
-    eval_cmd.add_argument("--index-dir", required=True, help="Directory to evaluate against")
-    eval_cmd.add_argument("--output-dir", default="eval_results", help="Output directory")
-    eval_cmd.add_argument("--compare-baseline", action="store_true", help="Compare against baseline")
-    eval_cmd.add_argument("--set-baseline", action="store_true", help="Set baseline from this run")
-
-    base = sub.add_parser("set-baseline", help="Set baseline from existing results")
-    base.add_argument("--results", required=True, help="Path to results JSON")
-    base.add_argument("--output-dir", default="eval_results", help="Output directory")
-
-    return parser
-
-
-def main() -> int:
-    parser = build_parser()
-    args = parser.parse_args()
-    if args.command == "generate-dataset":
-        return generate_dataset(args)
-    if args.command == "evaluate":
-        return evaluate(args)
-    if args.command == "set-baseline":
-        return set_baseline(args)
-    print("Unknown command")
-    return 2
-
-
-def evaluate(args: argparse.Namespace) -> int:
-    overrides = build_overrides(args)
-    cfg = resolve_config(args.config, overrides)
-    dataset = load_dataset(Path(args.dataset))
+def evaluate(
+    dataset_path: Path,
+    index_dir: Path,
+    output_dir: Path,
+    compare_baseline: bool,
+    set_baseline_flag: bool,
+    config: Optional[str],
+    overrides: dict,
+) -> int:
+    cfg = resolve_config(config, overrides)
+    dataset = load_dataset(dataset_path)
     if not dataset:
         print("Dataset is empty.")
         return 2
@@ -583,7 +557,7 @@ def evaluate(args: argparse.Namespace) -> int:
         table_name=cfg.vector_store.table_name,
     )
     index = Index(
-        directory=Path(args.index_dir),
+        directory=index_dir,
         chunk_size=cfg.ingestion.chunk_size,
         overlap=cfg.ingestion.overlap,
         extensions=cfg.ingestion.extensions,
@@ -702,7 +676,7 @@ def evaluate(args: argparse.Namespace) -> int:
                 cfg.ingestion.chunk_size,
                 cfg.ingestion.overlap,
                 entry.get("chunk_text_snippet", ""),
-                Path(args.index_dir),
+                index_dir,
             )
             prompt = _make_answer_prompt(context, entry["question"])
             start = perf_counter()
@@ -811,18 +785,17 @@ def evaluate(args: argparse.Namespace) -> int:
         "per_question": per_question,
     }
 
-    output_dir = Path(args.output_dir)
     latest_path = output_dir / "latest.json"
     save_json(latest_path, results)
 
-    if args.set_baseline:
+    if set_baseline_flag:
         baseline_path = output_dir / "baseline.json"
         save_json(baseline_path, results)
 
     report = format_report(results)
     print(report)
 
-    if args.compare_baseline:
+    if compare_baseline:
         baseline_path = output_dir / "baseline.json"
         if not baseline_path.exists():
             print("Baseline not found. Run with --set-baseline first.")
@@ -837,5 +810,150 @@ def evaluate(args: argparse.Namespace) -> int:
     return 0
 
 
+@app.command("generate-dataset", help="Generate a dataset skeleton with TODO questions and answers.")
+def generate_dataset_cmd(
+    source_dir: Path = typer.Option(..., "--source-dir", help="Directory to scan"),
+    output: Path = typer.Option(..., "--output", help="Output JSON file"),
+    num_questions: int = typer.Option(50, "--num-questions", help="Number of questions to generate"),
+    negative_count: int = typer.Option(5, "--negative-count", help="Number of negative placeholders"),
+    snippet_chars: int = typer.Option(240, "--snippet-chars", help="Snippet length"),
+    seed: int = typer.Option(7, "--seed", help="Random seed"),
+    extensions: Optional[str] = typer.Option(None, "--extensions", help="Comma-separated extensions"),
+    config: Optional[str] = typer.Option(None, "--config", help="Path to YAML config file"),
+    chunk_size: Optional[int] = typer.Option(None, "--chunk-size", help="Tokens per chunk"),
+    overlap: Optional[int] = typer.Option(None, "--overlap", help="Token overlap per chunk"),
+    files_per_batch: Optional[int] = typer.Option(None, "--files-per-batch", help="Initial batch size"),
+    adaptive_batching: Optional[bool] = typer.Option(
+        None,
+        "--adaptive-batching/--no-adaptive-batching",
+        help="Enable adaptive batch sizing",
+    ),
+    min_files_per_batch: Optional[int] = typer.Option(None, "--min-files-per-batch", help="Minimum batch size"),
+    max_files_per_batch: Optional[int] = typer.Option(None, "--max-files-per-batch", help="Maximum batch size"),
+    target_batch_seconds: Optional[float] = typer.Option(None, "--target-batch-seconds", help="Target batch duration"),
+    top_k: Optional[int] = typer.Option(None, "--top-k", help="Top K chunks"),
+    model: Optional[str] = typer.Option(None, "--model", help="Ollama model name"),
+    db_path: Optional[str] = typer.Option(None, "--db-path", help="LanceDB storage path"),
+    table_name: Optional[str] = typer.Option(None, "--table-name", help="LanceDB table name"),
+    prefer_gpu: Optional[bool] = typer.Option(
+        None,
+        "--prefer-gpu/--no-prefer-gpu",
+        help="Prefer GPU embeddings",
+    ),
+    embed_retries: Optional[int] = typer.Option(None, "--embed-retries", help="Embedding retry count"),
+    embed_gpu_batch: Optional[int] = typer.Option(None, "--embed-gpu-batch", help="GPU batch size"),
+    embed_cpu_batch: Optional[int] = typer.Option(None, "--embed-cpu-batch", help="CPU batch size"),
+    log_level: Optional[str] = typer.Option(None, "--log-level", help="Logging level"),
+):
+    overrides = _build_overrides(
+        chunk_size,
+        overlap,
+        extensions,
+        files_per_batch,
+        adaptive_batching,
+        min_files_per_batch,
+        max_files_per_batch,
+        target_batch_seconds,
+        top_k,
+        model,
+        db_path,
+        table_name,
+        prefer_gpu,
+        embed_retries,
+        embed_gpu_batch,
+        embed_cpu_batch,
+        log_level,
+    )
+    code = generate_dataset(
+        source_dir=source_dir,
+        output=output,
+        num_questions=num_questions,
+        negative_count=negative_count,
+        snippet_chars=snippet_chars,
+        seed=seed,
+        extensions=extensions,
+        config=config,
+        overrides=overrides,
+    )
+    if code != 0:
+        raise typer.Exit(code)
+
+
+@app.command("evaluate", help="Run evaluation and optionally compare to a baseline.")
+def evaluate_cmd(
+    dataset: Path = typer.Option(..., "--dataset", help="Path to dataset JSON/JSONL"),
+    index_dir: Path = typer.Option(..., "--index-dir", help="Directory to evaluate against"),
+    output_dir: Path = typer.Option("eval_results", "--output-dir", help="Output directory"),
+    compare_baseline: bool = typer.Option(False, "--compare-baseline", help="Compare against baseline"),
+    set_baseline_flag: bool = typer.Option(False, "--set-baseline", help="Set baseline from this run"),
+    config: Optional[str] = typer.Option(None, "--config", help="Path to YAML config file"),
+    chunk_size: Optional[int] = typer.Option(None, "--chunk-size", help="Tokens per chunk"),
+    overlap: Optional[int] = typer.Option(None, "--overlap", help="Token overlap per chunk"),
+    extensions: Optional[str] = typer.Option(None, "--extensions", help="Comma-separated extensions"),
+    files_per_batch: Optional[int] = typer.Option(None, "--files-per-batch", help="Initial batch size"),
+    adaptive_batching: Optional[bool] = typer.Option(
+        None,
+        "--adaptive-batching/--no-adaptive-batching",
+        help="Enable adaptive batch sizing",
+    ),
+    min_files_per_batch: Optional[int] = typer.Option(None, "--min-files-per-batch", help="Minimum batch size"),
+    max_files_per_batch: Optional[int] = typer.Option(None, "--max-files-per-batch", help="Maximum batch size"),
+    target_batch_seconds: Optional[float] = typer.Option(None, "--target-batch-seconds", help="Target batch duration"),
+    top_k: Optional[int] = typer.Option(None, "--top-k", help="Top K chunks"),
+    model: Optional[str] = typer.Option(None, "--model", help="Ollama model name"),
+    db_path: Optional[str] = typer.Option(None, "--db-path", help="LanceDB storage path"),
+    table_name: Optional[str] = typer.Option(None, "--table-name", help="LanceDB table name"),
+    prefer_gpu: Optional[bool] = typer.Option(
+        None,
+        "--prefer-gpu/--no-prefer-gpu",
+        help="Prefer GPU embeddings",
+    ),
+    embed_retries: Optional[int] = typer.Option(None, "--embed-retries", help="Embedding retry count"),
+    embed_gpu_batch: Optional[int] = typer.Option(None, "--embed-gpu-batch", help="GPU batch size"),
+    embed_cpu_batch: Optional[int] = typer.Option(None, "--embed-cpu-batch", help="CPU batch size"),
+    log_level: Optional[str] = typer.Option(None, "--log-level", help="Logging level"),
+):
+    overrides = _build_overrides(
+        chunk_size,
+        overlap,
+        extensions,
+        files_per_batch,
+        adaptive_batching,
+        min_files_per_batch,
+        max_files_per_batch,
+        target_batch_seconds,
+        top_k,
+        model,
+        db_path,
+        table_name,
+        prefer_gpu,
+        embed_retries,
+        embed_gpu_batch,
+        embed_cpu_batch,
+        log_level,
+    )
+    code = evaluate(
+        dataset_path=dataset,
+        index_dir=index_dir,
+        output_dir=output_dir,
+        compare_baseline=compare_baseline,
+        set_baseline_flag=set_baseline_flag,
+        config=config,
+        overrides=overrides,
+    )
+    if code != 0:
+        raise typer.Exit(code)
+
+
+@app.command("set-baseline", help="Set baseline from an existing results file.")
+def set_baseline_cmd(
+    results: Path = typer.Option(..., "--results", help="Path to results JSON"),
+    output_dir: Path = typer.Option("eval_results", "--output-dir", help="Output directory"),
+):
+    code = set_baseline(results_path=results, output_dir=output_dir)
+    if code != 0:
+        raise typer.Exit(code)
+
+
 if __name__ == "__main__":
-    sys.exit(main())
+    app()
