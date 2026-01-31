@@ -26,7 +26,13 @@ class VectorStore(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def search(self, vector: List[float], top_k: int) -> List[Tuple[Chunk, float]]:
+    def search(
+        self,
+        vector: List[float],
+        query_text: str,
+        top_k: int,
+        candidate_k: int | None = None,
+    ) -> List[Tuple[Chunk, float]]:
         raise NotImplementedError
 
     @abstractmethod

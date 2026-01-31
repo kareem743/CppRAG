@@ -203,7 +203,7 @@ def _timed_query(
     if not vector:
         return [], RetrievalTiming(embed_ms=embed_ms, search_ms=0.0, total_ms=embed_ms)
     search_start = perf_counter()
-    results = vector_store.search(vector[0], top_k)
+    results = vector_store.search(vector[0], query_text=query_text, top_k=top_k)
     search_ms = (perf_counter() - search_start) * 1000
     total_ms = (perf_counter() - start) * 1000
     return results, RetrievalTiming(embed_ms=embed_ms, search_ms=search_ms, total_ms=total_ms)

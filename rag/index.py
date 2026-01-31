@@ -200,7 +200,7 @@ class Index:
             vector = self._embedder.embed([query_text])
             if not vector:
                 return []
-            return self._vector_store.search(vector[0], top_k)
+            return self._vector_store.search(vector[0], query_text=query_text, top_k=top_k)
         except (EmbeddingError, VectorStoreError) as exc:
             _LOGGER.exception("Query failed")
             raise QueryError("Query failed") from exc
