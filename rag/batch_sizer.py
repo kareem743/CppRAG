@@ -28,3 +28,4 @@ class AdaptiveBatchSizer:
             self.current = max(self.min_size, int(self.current * 0.7))
         elif duration_seconds < self.target_seconds * 0.5:
             self.current = min(self.max_size, int(self.current * 1.3))
+ppppp
