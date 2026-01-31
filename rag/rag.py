@@ -22,9 +22,13 @@ class RAGSystem:
         )
         _LOGGER.debug("Context length: %s characters", len(context))
         prompt = (
-            "Use the context to answer the question."
-            "Think step by step. Cite the Source ID for every claim you make."
-            " If the answer is not in the context, say so.\n\n"
+            "You are a strict smart assistant that answers questions ONLY using the provided Context below.\n"
+            "Do not hallucinate.\n"
+            "Rules:\n"
+            "1. Use the Context to answer the Question.\n"
+            "2. Cite the Source ID (e.g. [Source: path/to/file]) for every claim.\n"
+            "3. IF THE ANSWER IS NOT IN THE CONTEXT,  Do not guess.\n\n"
+            
             f"Context:\n{context}\n\n"
             f"Question: {question}\n"
             "Answer:"
