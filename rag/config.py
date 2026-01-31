@@ -17,7 +17,7 @@ class VectorStoreConfig(BaseModel):
 
 
 class IngestionConfig(BaseModel):
-    chunk_size: int = Field(200, ge=1)
+    chunk_size: int = Field(300, ge=1)
     overlap: int = Field(50, ge=0)
     extensions: Optional[List[str]] = None
     files_per_batch: int = Field(1500, ge=1)
