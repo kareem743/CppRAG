@@ -1,17 +1,18 @@
-# Local RAG (PythonProject4)
+# RAG Project (PythonProject4)
 
-Local retrieval-augmented question answering over your files. This project uses a
-C++ chunker (`rag_core.pyd`), FastEmbed embeddings, LanceDB storage, and a local
-Ollama model for answers.
+This project provides a local RAG (Retrieval-Augmented Generation) pipeline with:
+- A CLI for ingestion, querying, and interactive use.
+- A C++ chunking engine (`rag_core.pyd`) integrated via `rag_core`.
+- A LanceDB vector store backend.
+- A standalone evaluation script (`run_eval.py`) to measure retrieval, generation, and end-to-end quality.
 
-## What You Get
-
-- Incremental ingestion with a file-hash cache (`lancedb_data/ingestion_state.json`).
-- C++ chunking via `rag_core.IngestionEngine` (uses the parallel API when available).
-- GPU-first embeddings with automatic CPU fallback.
-- LanceDB vector store with post-ingestion compaction.
-- CLI commands with structured logging and timing.
-- An evaluation script with retrieval, generation, and end-to-end metrics.
+Quick links:
+- `docs/USAGE.md` — How to run ingestion/query/serve.
+- `docs/CONFIG.md` — Configuration and overrides.
+- `docs/EVALUATION.md` — Evaluation workflow + metrics.
+- `docs/DATASET.md` — Golden dataset schema and guidance.
+- `docs/ARCHITECTURE.md` — Module overview and data flow.
+- `docs/TROUBLESHOOTING.md` — Common errors and fixes.
 
 ## Quick Start
 
@@ -35,36 +36,16 @@ python rag_cli.py query <PATH_TO_DOCS> "Your question here"
 python rag_cli.py serve <PATH_TO_DOCS>
 ```
 
-## Common CLI Examples
+## Evaluation (Summary)
 
+Generate a dataset skeleton:
 ```
-python rag_cli.py ingest <DIR> --chunk-size 200 --overlap 50 --extensions "md,py"
-python rag_cli.py query <DIR> "Question" --top-k 5 --model llama3
-python rag_cli.py ingest <DIR> --dry-run --verbose
+python run_eval.py generate-dataset --source-dir <PATH_TO_DOCS> --output golden_dataset.json --num-questions 50
 ```
 
-## How Answers Are Produced
+Run evaluation:
+```
+python run_eval.py evaluate --dataset golden_dataset.json --index-dir <PATH_TO_DOCS> --output-dir eval_results
+```
 
-1) Files are scanned and filtered by extension.
-2) Changed files are detected via a hash cache.
-3) The C++ chunker splits text into chunks.
-4) FastEmbed creates embeddings (GPU-first, CPU fallback).
-5) LanceDB stores vectors, text, and source paths.
-6) A query embeds your question, retrieves top-k chunks, and calls `ollama run <model>`.
-
-## Docs
-
-- `docs/INDEX.md` — Documentation start page.
-- `docs/USAGE.md` — CLI usage and flags.
-- `docs/CONFIG.md` — Config file, env vars, and overrides.
-- `docs/EVALUATION.md` — Evaluation workflow and metrics.
-- `docs/DATASET.md` — Golden dataset schema and guidance.
-- `docs/ARCHITECTURE.md` — Modules and data flow.
-- `docs/TROUBLESHOOTING.md` — Common issues and fixes.
-
-## Requirements
-
-- Python 3.11+
-- `rag_core.pyd` in the project root
-- `fastembed`, `lancedb`, `typer`, `pydantic`, `pyyaml`
-- Ollama installed with a local model pulled (default model: `llama3`)
+See `docs/EVALUATION.md` for details.
