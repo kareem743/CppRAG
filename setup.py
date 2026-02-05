@@ -33,6 +33,14 @@ setup(
     name="rag-project",
     version="0.1.0",
     packages=["rag"],
+    python_requires=">=3.11",
+    install_requires=[
+        "typer",
+        "fastembed",
+        "lancedb",
+        "pydantic",
+        "pyyaml",
+    ],
     ext_modules=_build_extensions(),
     cmdclass={"build_ext": build_ext} if build_ext else {},
 )
