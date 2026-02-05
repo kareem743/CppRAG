@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
+import ChatArea from "./components/ChatArea";
+import SystemDashboard from "./components/SystemDashboard";
+import ChunkVisualizer from "./components/ChunkVisualizer";
+import { useAppStore } from "./store";
+
 const slideLeft = {
   hidden: { x: -40, opacity: 0 },
   visible: { x: 0, opacity: 1, transition: { duration: 0.4, ease: "easeOut" } },
@@ -17,6 +22,9 @@ const panelBase =
 export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [inspectorOpen, setInspectorOpen] = useState(false);
+  const activeFile = useAppStore((state) => state.activeFile);
+  const fileContent = useAppStore((state) => state.fileContent);
+  const fileChunks = useAppStore((state) => state.fileChunks);
 
   return (
     <div className="h-screen overflow-hidden bg-bg text-slate-100">
@@ -37,7 +45,7 @@ export default function App() {
             </span>
           </div>
           <div className="flex-1 overflow-y-auto p-4">
-            <div className="text-sm text-slate-300">Sidebar content</div>
+            <SystemDashboard />
           </div>
         </motion.aside>
 
@@ -64,9 +72,7 @@ export default function App() {
             </div>
           </div>
           <div className="flex-1 overflow-y-auto p-6">
-            <div className="text-slate-300">
-              Main chat pane. Messages will render here.
-            </div>
+            <ChatArea />
           </div>
         </main>
 
@@ -76,11 +82,16 @@ export default function App() {
           animate="visible"
           className="hidden md:flex md:flex-col border-border border-l bg-surface"
         >
-          <div className="border-border border-b px-4 py-3 text-xs uppercase tracking-widest text-slate-400">
-            Inspector
+          <div className="border-border border-b px-4 py-3">
+            <div className="text-xs uppercase tracking-widest text-slate-400">
+              Inspector
+            </div>
+            <div className="mt-1 text-[11px] text-slate-500">
+              {activeFile ?? "No file selected"}
+            </div>
           </div>
           <div className="flex-1 overflow-y-auto p-4 text-sm text-slate-300">
-            Inspector content
+            <ChunkVisualizer fileContent={fileContent} chunks={fileChunks} />
           </div>
         </motion.aside>
       </div>
@@ -112,7 +123,7 @@ export default function App() {
               </button>
             </div>
             <div className="h-full overflow-y-auto p-4 text-sm text-slate-300">
-              Sidebar content
+              <SystemDashboard />
             </div>
           </motion.aside>
         )}
@@ -127,8 +138,15 @@ export default function App() {
             transition={{ duration: 0.25, ease: "easeOut" }}
             className="fixed inset-y-0 right-0 z-40 w-72 bg-surface border-border border-l md:hidden"
           >
-            <div className="border-border flex items-center justify-between border-b px-4 py-3 text-xs uppercase tracking-widest text-slate-400">
-              Inspector
+            <div className="border-border flex items-center justify-between border-b px-4 py-3">
+              <div>
+                <div className="text-xs uppercase tracking-widest text-slate-400">
+                  Inspector
+                </div>
+                <div className="mt-1 text-[11px] text-slate-500">
+                  {activeFile ?? "No file selected"}
+                </div>
+              </div>
               <button
                 className="text-xs text-slate-400 hover:text-white normal-case"
                 onClick={() => setInspectorOpen(false)}
@@ -137,7 +155,7 @@ export default function App() {
               </button>
             </div>
             <div className="h-full overflow-y-auto p-4 text-sm text-slate-300">
-              Inspector content
+              <ChunkVisualizer fileContent={fileContent} chunks={fileChunks} />
             </div>
           </motion.aside>
         )}

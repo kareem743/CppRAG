@@ -9,8 +9,7 @@ interface ChunkVisualizerProps {
 
 type Token = {
   text: string;
-  start: number;
-  end: number;
+  index: number;
   chunkIndexes: number[];
 };
 
@@ -19,11 +18,11 @@ const tokenRegex = /\S+/g;
 const tokenize = (content: string): Token[] => {
   const tokens: Token[] = [];
   let match = tokenRegex.exec(content);
+  let index = 0;
   while (match) {
     const text = match[0];
-    const start = match.index;
-    const end = start + text.length;
-    tokens.push({ text, start, end, chunkIndexes: [] });
+    tokens.push({ text, index, chunkIndexes: [] });
+    index += 1;
     match = tokenRegex.exec(content);
   }
   return tokens;
@@ -33,7 +32,7 @@ const mapTokensToChunks = (tokens: Token[], chunks: ChunkSpan[]): Token[] => {
   return tokens.map((token) => {
     const indexes: number[] = [];
     chunks.forEach((chunk, idx) => {
-      if (token.start >= chunk.start && token.end <= chunk.end) {
+      if (token.index >= chunk.start && token.index <= chunk.end) {
         indexes.push(idx);
       }
     });
@@ -82,9 +81,9 @@ export default function ChunkVisualizer({
                 const chunkIndex = token.chunkIndexes[0] ?? -1;
                 return (
                   <span
-                    key={`${token.start}-${index}`}
+                    key={`${token.index}-${index}`}
                     ref={(node) => {
-                      if (chunkIndex >= 0) {
+                      if (chunkIndex >= 0 && !tokenRefs.current[chunkIndex]) {
                         tokenRefs.current[chunkIndex] = node;
                       }
                     }}
