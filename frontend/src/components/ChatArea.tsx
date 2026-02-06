@@ -88,7 +88,7 @@ export default function ChatArea() {
                 className={`max-w-[75%] rounded-lg px-4 py-3 text-sm shadow-sm ${
                   isUser
                     ? "bg-indigo-600/40 text-slate-100 border border-indigo-400/30"
-                    : "bg-slate-900/80 text-emerald-100 border border-border font-mono"
+                    : "bg-surface/80 text-emerald-100 border border-border font-mono"
                 }`}
               >
                 <div className="whitespace-pre-wrap">{message.content}</div>
@@ -111,7 +111,7 @@ export default function ChatArea() {
 
         {isGenerating && (
           <div className="flex justify-start">
-            <div className="w-full max-w-[75%] rounded-lg border border-border bg-slate-900/80 p-4">
+            <div className="w-full max-w-[75%] rounded-lg border border-border bg-surface/80 p-4">
               <div className="h-4 w-2/3 rounded bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800"
                 style={{
                   backgroundSize: "400px 100%",
@@ -138,7 +138,7 @@ export default function ChatArea() {
       <div className="border-border border-t pt-3">
         <div className="flex gap-3">
           <textarea
-            className="min-h-[70px] w-full resize-none rounded-lg border border-border bg-slate-950/60 p-3 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+            className="min-h-[70px] w-full resize-none rounded-lg border border-border bg-background/60 p-3 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
             placeholder="Ask the engine..."
             value={draft}
             onChange={(event) => setDraft(event.target.value)}

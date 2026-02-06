@@ -69,7 +69,7 @@ export default function ChunkVisualizer({
           {chunks.length} chunks
         </span>
       </div>
-      <div className="rounded-lg border border-border bg-bg/70 p-4 font-mono text-xs leading-relaxed text-slate-200">
+      <div className="rounded-lg border border-border bg-background/70 p-4 font-mono text-xs leading-relaxed text-slate-200">
         <div className="max-h-[70vh] overflow-y-auto">
           {tokens.length === 0 ? (
             <div className="text-slate-500">No file loaded.</div>

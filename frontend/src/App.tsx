@@ -27,7 +27,7 @@ export default function App() {
   const fileChunks = useAppStore((state) => state.fileChunks);
 
   return (
-    <div className="h-screen overflow-hidden bg-bg text-slate-100">
+    <div className="h-screen overflow-hidden bg-background text-slate-100">
       <div className="grid h-full grid-cols-1 md:grid-cols-[260px,1fr,320px]">
         <motion.aside
           variants={slideLeft}

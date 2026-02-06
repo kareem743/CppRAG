@@ -32,7 +32,7 @@ export default function SystemDashboard() {
             ?
           </span>
         </div>
-        <div className="mt-3 h-24 rounded-lg border border-border bg-bg/60 p-3">
+        <div className="mt-3 h-24 rounded-lg border border-border bg-background/60 p-3">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={sparkData}>
               <Tooltip
@@ -65,7 +65,7 @@ export default function SystemDashboard() {
         </div>
       </div>
 
-      <div className="rounded-lg border border-border bg-bg/60 p-4">
+      <div className="rounded-lg border border-border bg-background/60 p-4">
         <div className="flex items-center justify-between">
           <div className="text-xs uppercase tracking-widest text-slate-400">
             GPU Status

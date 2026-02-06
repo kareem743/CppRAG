@@ -26,6 +26,7 @@ class ChatRequest(BaseModel):
 class ChunkResponse(BaseModel):
     text: str
     source: str
+    score: Optional[float] = None
 
 
 class MetricsResponse(BaseModel):
@@ -106,7 +107,7 @@ app = FastAPI(title="RAG API", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -142,7 +143,10 @@ def chat(request: ChatRequest) -> ChatResponse:
         latency_ms = (perf_counter() - start) * 1000.0
         return ChatResponse(
             answer=answer,
-            sources=[ChunkResponse(text=c.text, source=c.source) for c in chunks],
+            sources=[
+                ChunkResponse(text=c.text, source=c.source, score=score)
+                for c, score in ranked
+            ],
             metrics=MetricsResponse(latency_ms=latency_ms, engine="cpp-accelerated"),
         )
     except QueryError as exc:
