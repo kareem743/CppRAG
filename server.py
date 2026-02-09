@@ -20,6 +20,8 @@ from rag.llm import OllamaLLM
 from rag.models import Chunk
 from rag.rag import RAGSystem
 from rag.vector_store import LanceDBVectorStore
+from run_eval import evaluate as run_evaluate
+from run_eval import _build_overrides as build_eval_overrides
 
 
 class ChatRequest(BaseModel):
@@ -113,6 +115,43 @@ class EvaluationResponse(BaseModel):
     per_question: List[Dict[str, Any]]
 
 
+class EvaluationRunRequest(BaseModel):
+    dataset: Optional[str] = None
+    index_dir: Optional[str] = None
+    output_dir: str = "eval_results"
+    compare_baseline: bool = False
+    set_baseline: bool = False
+    config: Optional[str] = None
+    chunk_size: Optional[int] = Field(None, ge=1)
+    overlap: Optional[int] = Field(None, ge=0)
+    extensions: Optional[str] = None
+    files_per_batch: Optional[int] = Field(None, ge=1)
+    adaptive_batching: Optional[bool] = None
+    min_files_per_batch: Optional[int] = Field(None, ge=1)
+    max_files_per_batch: Optional[int] = Field(None, ge=1)
+    target_batch_seconds: Optional[float] = Field(None, gt=0)
+    top_k: Optional[int] = Field(None, ge=1)
+    model: Optional[str] = None
+    db_path: Optional[str] = None
+    table_name: Optional[str] = None
+    prefer_gpu: Optional[bool] = None
+    embed_retries: Optional[int] = Field(None, ge=0)
+    embed_gpu_batch: Optional[int] = Field(None, ge=1)
+    embed_cpu_batch: Optional[int] = Field(None, ge=1)
+    log_level: Optional[str] = None
+
+
+class EvaluationRunStatus(BaseModel):
+    status: Literal["idle", "running", "complete", "error"]
+    message: Optional[str] = None
+    started_at: Optional[str] = None
+    finished_at: Optional[str] = None
+    last_duration_ms: Optional[float] = None
+    exit_code: Optional[int] = None
+    latest_results_path: Optional[str] = None
+    options: Optional[Dict[str, Any]] = None
+
+
 def _resolve_directory() -> Path:
     return Path(os.environ.get("RAG_DIRECTORY", os.getcwd())).resolve()
 
@@ -186,6 +225,18 @@ _STORAGE_CACHE: Dict[str, Optional[object]] = {
     "cache_bytes": 0,
 }
 _STORAGE_CACHE_TTL_SECONDS = 30.0
+
+_EVAL_LOCK = threading.Lock()
+_EVAL_STATE: Dict[str, Optional[object]] = {
+    "status": "idle",
+    "message": None,
+    "started_at": None,
+    "finished_at": None,
+    "last_duration_ms": None,
+    "exit_code": None,
+    "latest_results_path": None,
+    "options": None,
+}
 
 
 def _build_prompt(chunks: List[Chunk], question: str) -> str:
@@ -305,10 +356,49 @@ def _fastembed_cache_path() -> Path:
 
 
 def _resolve_evaluation_path() -> Path:
+    state_path = _EVAL_STATE.get("latest_results_path")
+    if isinstance(state_path, str) and state_path:
+        return Path(state_path).expanduser().resolve()
     path = os.environ.get("RAG_EVAL_RESULTS_PATH")
     if path:
         return Path(path).expanduser().resolve()
     return Path("eval_results") / "latest.json"
+
+
+def _default_dataset_path() -> Optional[Path]:
+    candidates = [Path("datasets") / "new_dataset.json", Path("datasets") / "dataset.json"]
+    for candidate in candidates:
+        if candidate.exists() and candidate.is_file():
+            return candidate
+    return None
+
+
+def _build_eval_options(request: EvaluationRunRequest) -> Dict[str, Any]:
+    return {
+        "dataset": request.dataset,
+        "index_dir": request.index_dir,
+        "output_dir": request.output_dir,
+        "compare_baseline": request.compare_baseline,
+        "set_baseline": request.set_baseline,
+        "config": request.config,
+        "chunk_size": request.chunk_size,
+        "overlap": request.overlap,
+        "extensions": request.extensions,
+        "files_per_batch": request.files_per_batch,
+        "adaptive_batching": request.adaptive_batching,
+        "min_files_per_batch": request.min_files_per_batch,
+        "max_files_per_batch": request.max_files_per_batch,
+        "target_batch_seconds": request.target_batch_seconds,
+        "top_k": request.top_k,
+        "model": request.model,
+        "db_path": request.db_path,
+        "table_name": request.table_name,
+        "prefer_gpu": request.prefer_gpu,
+        "embed_retries": request.embed_retries,
+        "embed_gpu_batch": request.embed_gpu_batch,
+        "embed_cpu_batch": request.embed_cpu_batch,
+        "log_level": request.log_level,
+    }
 
 
 def _get_storage_sizes() -> tuple[int, int]:
@@ -339,6 +429,76 @@ def _snapshot_ingest_state() -> IngestStatus:
 
 def _update_ingest_state(**updates) -> None:
     _INGEST_STATE.update(updates)
+
+
+def _snapshot_eval_state() -> EvaluationRunStatus:
+    return EvaluationRunStatus(**_EVAL_STATE)
+
+
+def _update_eval_state(**updates) -> None:
+    _EVAL_STATE.update(updates)
+
+
+def _eval_worker(request: EvaluationRunRequest) -> None:
+    start = perf_counter()
+    try:
+        dataset = request.dataset
+        if not dataset:
+            default_dataset = _default_dataset_path()
+            if not default_dataset:
+                raise ValueError(
+                    "Dataset path is required (no datasets/new_dataset.json or datasets/dataset.json found)."
+                )
+            dataset = str(default_dataset)
+
+        index_dir = request.index_dir or str(_resolve_directory())
+        output_dir = request.output_dir or "eval_results"
+
+        overrides = build_eval_overrides(
+            request.chunk_size,
+            request.overlap,
+            request.extensions,
+            request.files_per_batch,
+            request.adaptive_batching,
+            request.min_files_per_batch,
+            request.max_files_per_batch,
+            request.target_batch_seconds,
+            request.top_k,
+            request.model,
+            request.db_path,
+            request.table_name,
+            request.prefer_gpu,
+            request.embed_retries,
+            request.embed_gpu_batch,
+            request.embed_cpu_batch,
+            request.log_level,
+        )
+        exit_code = run_evaluate(
+            dataset_path=Path(dataset).expanduser().resolve(),
+            index_dir=Path(index_dir).expanduser().resolve(),
+            output_dir=Path(output_dir).expanduser().resolve(),
+            compare_baseline=request.compare_baseline,
+            set_baseline_flag=request.set_baseline,
+            config=request.config,
+            overrides=overrides,
+        )
+        latest_results_path = str((Path(output_dir).expanduser().resolve() / "latest.json"))
+        _update_eval_state(
+            status="complete" if exit_code == 0 else "error",
+            message="Evaluation finished." if exit_code == 0 else f"Evaluation exited with code {exit_code}.",
+            finished_at=_iso_now(),
+            last_duration_ms=(perf_counter() - start) * 1000.0,
+            exit_code=exit_code,
+            latest_results_path=latest_results_path,
+        )
+    except Exception as exc:
+        _update_eval_state(
+            status="error",
+            message=f"Evaluation failed: {exc}",
+            finished_at=_iso_now(),
+            last_duration_ms=(perf_counter() - start) * 1000.0,
+            exit_code=2,
+        )
 
 
 def _ingest_worker(request: IngestRequest, directory: Path) -> None:
@@ -538,6 +698,33 @@ def evaluation() -> EvaluationResponse:
             status_code=500,
             detail=f"Failed to load evaluation results: {exc}",
         ) from exc
+
+
+@app.post("/api/evaluation/run", response_model=EvaluationRunStatus)
+def run_evaluation(request: EvaluationRunRequest) -> EvaluationRunStatus:
+    if _EVAL_STATE["status"] == "running":
+        raise HTTPException(status_code=409, detail="Evaluation already running.")
+
+    options = _build_eval_options(request)
+    with _EVAL_LOCK:
+        _update_eval_state(
+            status="running",
+            message="Evaluation started.",
+            started_at=_iso_now(),
+            finished_at=None,
+            last_duration_ms=None,
+            exit_code=None,
+            options=options,
+        )
+
+    thread = threading.Thread(target=_eval_worker, args=(request,), daemon=True)
+    thread.start()
+    return _snapshot_eval_state()
+
+
+@app.get("/api/evaluation/status", response_model=EvaluationRunStatus)
+def evaluation_status() -> EvaluationRunStatus:
+    return _snapshot_eval_state()
 
 
 if __name__ == "__main__":
