@@ -204,3 +204,22 @@ class Index:
         except (EmbeddingError, VectorStoreError) as exc:
             _LOGGER.exception("Query failed")
             raise QueryError("Query failed") from exc
+
+    def query_with_metrics(
+        self, query_text: str, top_k: int = 3
+    ) -> Tuple[List[Tuple[Chunk, float]], dict]:
+        if top_k <= 0:
+            return [], {"embed_ms": 0.0, "retrieve_ms": 0.0}
+        try:
+            embed_start = perf_counter()
+            vector = self._embedder.embed([query_text])
+            embed_ms = (perf_counter() - embed_start) * 1000.0
+            if not vector:
+                return [], {"embed_ms": embed_ms, "retrieve_ms": 0.0}
+            retrieve_start = perf_counter()
+            results = self._vector_store.search(vector[0], top_k)
+            retrieve_ms = (perf_counter() - retrieve_start) * 1000.0
+            return results, {"embed_ms": embed_ms, "retrieve_ms": retrieve_ms}
+        except (EmbeddingError, VectorStoreError) as exc:
+            _LOGGER.exception("Query failed")
+            raise QueryError("Query failed") from exc

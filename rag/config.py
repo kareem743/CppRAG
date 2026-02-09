@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field, ValidationError, field_validator
 
 
 class EmbeddingConfig(BaseModel):
+    model_name: Optional[str] = None
     prefer_gpu: bool = True
     max_retries: int = Field(1, ge=0)
     gpu_batch_size: int = Field(32, ge=1)
@@ -123,6 +124,8 @@ def load_env_config() -> Dict:
         _set(["llm", "timeout_seconds"], int(env["RAG_TIMEOUT_SECONDS"]))
     if "RAG_PREFER_GPU" in env:
         _set(["embedding", "prefer_gpu"], env["RAG_PREFER_GPU"].lower() == "true")
+    if "RAG_EMBED_MODEL" in env:
+        _set(["embedding", "model_name"], env["RAG_EMBED_MODEL"])
     if "RAG_EMBED_MAX_RETRIES" in env:
         _set(["embedding", "max_retries"], int(env["RAG_EMBED_MAX_RETRIES"]))
     if "RAG_EMBED_GPU_BATCH_SIZE" in env:

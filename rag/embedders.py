@@ -13,23 +13,31 @@ _LOGGER = logging.getLogger(__name__)
 class FastEmbedEmbedder(Embedder):
     def __init__(
         self,
+        model_name: Optional[str] = None,
         prefer_gpu: bool = True,
         max_retries: int = 1,
         gpu_batch_size: int = 32,
         cpu_batch_size: int = 256,
     ):
+        self._model_name = model_name
         self._prefer_gpu = prefer_gpu
         self._max_retries = max_retries
         self._gpu_batch_size = gpu_batch_size
         self._cpu_batch_size = cpu_batch_size
+        self._last_provider: Optional[str] = None
 
     def config(self) -> dict:
         return {
+            "model_name": self._model_name,
             "prefer_gpu": self._prefer_gpu,
             "max_retries": self._max_retries,
             "gpu_batch_size": self._gpu_batch_size,
             "cpu_batch_size": self._cpu_batch_size,
         }
+
+    @property
+    def last_provider(self) -> Optional[str]:
+        return self._last_provider
 
     def embed(self, texts: Iterable[str]) -> List[List[float]]:
         payload = list(texts)
@@ -81,9 +89,22 @@ class FastEmbedEmbedder(Embedder):
         providers: Optional[List[str]],
         batch_size: int,
     ) -> List[List[float]]:
-        model = TextEmbedding(providers=providers) if providers else TextEmbedding()
+        if providers:
+            model = (
+                TextEmbedding(model_name=self._model_name, providers=providers)
+                if self._model_name
+                else TextEmbedding(providers=providers)
+            )
+        else:
+            model = (
+                TextEmbedding(model_name=self._model_name)
+                if self._model_name
+                else TextEmbedding()
+            )
         try:
-            return [list(vec) for vec in model.embed(texts, batch_size=batch_size)]
+            vectors = [list(vec) for vec in model.embed(texts, batch_size=batch_size)]
+            self._last_provider = "gpu" if providers else "cpu"
+            return vectors
         finally:
             del model
             gc.collect()
