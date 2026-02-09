@@ -41,7 +41,7 @@ class QueryConfig(BaseModel):
 
 
 class LLMConfig(BaseModel):
-    model: str = "llama3"
+    model: str = "qwen3:8b"
     timeout_seconds: int = Field(60, ge=1)
 
 
