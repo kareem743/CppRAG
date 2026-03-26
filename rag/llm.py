@@ -17,7 +17,7 @@ class OllamaLLM(LocalLLM):
     def generate(self, prompt: str) -> str:
         logging.getLogger(__name__).info("Calling Ollama model '%s'", self._model)
         completed = subprocess.run(
-            ["ollama", "run", self._model],
+            ["ollama", "run", self._model, "--hidethinking"],
             input=prompt.encode("utf-8"),
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,

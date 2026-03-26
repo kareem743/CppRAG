@@ -1,8 +1,10 @@
 import gc
 import logging
+import re
+import shutil
+import sys
+from pathlib import Path
 from typing import Iterable, List, Optional
-
-from fastembed import TextEmbedding
 
 from .errors import EmbeddingError
 from .interfaces import Embedder
@@ -61,7 +63,11 @@ class FastEmbedEmbedder(Embedder):
                         self._max_retries + 1,
                         exc,
                     )
+                    # Retry loops cannot recover from a missing provider.
+                    if self._is_cuda_provider_unavailable(exc):
+                        break
 
+        cache_recovered = False
         for attempt in range(self._max_retries + 1):
             try:
                 return self._embed_with_providers(
@@ -77,6 +83,22 @@ class FastEmbedEmbedder(Embedder):
                     self._max_retries + 1,
                     exc,
                 )
+                if not cache_recovered and self._is_missing_model_file_error(exc):
+                    recovered = self._recover_corrupt_fastembed_cache(exc)
+                    if recovered:
+                        cache_recovered = True
+                        try:
+                            return self._embed_with_providers(
+                                payload,
+                                providers=None,
+                                batch_size=self._cpu_batch_size,
+                            )
+                        except Exception as retry_exc:
+                            errors.append(retry_exc)
+                            _LOGGER.warning(
+                                "CPU embedding failed after cache recovery: %s",
+                                retry_exc,
+                            )
 
         message = "Embedding failed after GPU/CPU attempts."
         if errors:
@@ -89,6 +111,17 @@ class FastEmbedEmbedder(Embedder):
         providers: Optional[List[str]],
         batch_size: int,
     ) -> List[List[float]]:
+        try:
+            from fastembed import TextEmbedding
+        except Exception as exc:
+            raise EmbeddingError(
+                "FastEmbed could not be imported. This is usually an onnxruntime "
+                "binary mismatch. If you are using Python "
+                f"{sys.version_info.major}.{sys.version_info.minor}, try a supported "
+                "Python version for your installed onnxruntime/fastembed packages "
+                "(for example Python 3.12), then reinstall dependencies."
+            ) from exc
+
         if providers:
             model = (
                 TextEmbedding(model_name=self._model_name, providers=providers)
@@ -108,3 +141,47 @@ class FastEmbedEmbedder(Embedder):
         finally:
             del model
             gc.collect()
+
+    @staticmethod
+    def _is_cuda_provider_unavailable(exc: Exception) -> bool:
+        text = str(exc)
+        return "CUDAExecutionProvider" in text and "not available" in text
+
+    @staticmethod
+    def _is_missing_model_file_error(exc: Exception) -> bool:
+        text = str(exc).lower()
+        return "no_suchfile" in text and "load model from" in text and ".onnx" in text
+
+    @classmethod
+    def _recover_corrupt_fastembed_cache(cls, exc: Exception) -> bool:
+        model_root = cls._extract_fastembed_model_root(exc)
+        if model_root is None:
+            return False
+        try:
+            if model_root.exists():
+                shutil.rmtree(model_root)
+            _LOGGER.warning("Cleared corrupted FastEmbed cache directory: %s", model_root)
+            return True
+        except Exception as cleanup_exc:
+            _LOGGER.warning(
+                "Failed to clear corrupted FastEmbed cache directory '%s': %s",
+                model_root,
+                cleanup_exc,
+            )
+            return False
+
+    @staticmethod
+    def _extract_fastembed_model_root(exc: Exception) -> Optional[Path]:
+        match = re.search(r"Load model from (.+?\.onnx)", str(exc), flags=re.IGNORECASE)
+        if not match:
+            return None
+        model_path = Path(match.group(1))
+        for parent in model_path.parents:
+            if parent.name.startswith("models--"):
+                has_fastembed_cache = any(
+                    part.lower() == "fastembed_cache" for part in parent.parts
+                )
+                if has_fastembed_cache:
+                    return parent
+                return None
+        return None

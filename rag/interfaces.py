@@ -32,3 +32,9 @@ class VectorStore(ABC):
     @abstractmethod
     def compact(self) -> None:
         raise NotImplementedError
+
+
+class Reranker(ABC):
+    @abstractmethod
+    def rerank(self, query: str, chunks: List[Chunk], top_k: int) -> List[Tuple[Chunk, float]]:
+        raise NotImplementedError

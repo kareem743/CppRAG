@@ -45,6 +45,13 @@ class LLMConfig(BaseModel):
     timeout_seconds: int = Field(60, ge=1)
 
 
+class RerankerConfig(BaseModel):
+    enabled: bool = True
+    model: str = "ms-marco-MiniLM-L-12-v2"
+    top_n_expansion: int = Field(10, ge=1)
+    cache_dir: Optional[str] = None
+
+
 class LoggingConfig(BaseModel):
     level: str = "INFO"
 
@@ -60,6 +67,7 @@ class AppConfig(BaseModel):
     ingestion: IngestionConfig = IngestionConfig()
     query: QueryConfig = QueryConfig()
     llm: LLMConfig = LLMConfig()
+    reranker: RerankerConfig = RerankerConfig()
     logging: LoggingConfig = LoggingConfig()
     server: ServerConfig = ServerConfig()
 
@@ -122,6 +130,14 @@ def load_env_config() -> Dict:
         _set(["llm", "model"], env["RAG_MODEL"])
     if "RAG_TIMEOUT_SECONDS" in env:
         _set(["llm", "timeout_seconds"], int(env["RAG_TIMEOUT_SECONDS"]))
+    if "RAG_RERANKER_ENABLED" in env:
+        _set(["reranker", "enabled"], env["RAG_RERANKER_ENABLED"].lower() == "true")
+    if "RAG_RERANKER_MODEL" in env:
+        _set(["reranker", "model"], env["RAG_RERANKER_MODEL"])
+    if "RAG_RERANKER_TOP_N_EXPANSION" in env:
+        _set(["reranker", "top_n_expansion"], int(env["RAG_RERANKER_TOP_N_EXPANSION"]))
+    if "RAG_RERANKER_CACHE_DIR" in env:
+        _set(["reranker", "cache_dir"], env["RAG_RERANKER_CACHE_DIR"])
     if "RAG_PREFER_GPU" in env:
         _set(["embedding", "prefer_gpu"], env["RAG_PREFER_GPU"].lower() == "true")
     if "RAG_EMBED_MODEL" in env:

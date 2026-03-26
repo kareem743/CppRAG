@@ -16,6 +16,7 @@ from rag.embedders import FastEmbedEmbedder
 from rag.index import Index
 from rag.llm import OllamaLLM
 from rag.rag import RAGSystem
+from rag.rerankers import FlashRankReranker
 from rag.vector_store import LanceDBVectorStore
 from rag.chunker import RagCoreChunker
 
@@ -37,6 +38,7 @@ DATASET_REQUIRED_FIELDS = {
 class RetrievalTiming:
     embed_ms: float
     search_ms: float
+    rerank_ms: float
     total_ms: float
 
 
@@ -191,22 +193,21 @@ def _index_ready(db_path: str, table_name: str) -> Tuple[bool, str]:
 
 
 def _timed_query(
-    embedder: FastEmbedEmbedder,
-    vector_store: LanceDBVectorStore,
+    rag: RAGSystem,
     query_text: str,
     top_k: int,
 ) -> Tuple[List[Tuple[object, float]], RetrievalTiming]:
-    start = perf_counter()
-    embed_start = perf_counter()
-    vector = embedder.embed([query_text])
-    embed_ms = (perf_counter() - embed_start) * 1000
-    if not vector:
-        return [], RetrievalTiming(embed_ms=embed_ms, search_ms=0.0, total_ms=embed_ms)
-    search_start = perf_counter()
-    results = vector_store.search(vector[0], top_k)
-    search_ms = (perf_counter() - search_start) * 1000
-    total_ms = (perf_counter() - start) * 1000
-    return results, RetrievalTiming(embed_ms=embed_ms, search_ms=search_ms, total_ms=total_ms)
+    results, metrics = rag.retrieve_with_metrics(query_text, top_k=top_k)
+    embed_ms = float(metrics.get("embed_ms", 0.0))
+    search_ms = float(metrics.get("retrieve_ms", 0.0))
+    rerank_ms = float(metrics.get("rerank_ms", 0.0))
+    total_ms = embed_ms + search_ms + rerank_ms
+    return results, RetrievalTiming(
+        embed_ms=embed_ms,
+        search_ms=search_ms,
+        rerank_ms=rerank_ms,
+        total_ms=total_ms,
+    )
 
 
 def _mean(values: List[float]) -> float:
@@ -464,7 +465,8 @@ def format_report(results: Dict) -> str:
     lines.append("--- END-TO-END METRICS ---")
     lines.append(f"Semantic Similarity: {end_to_end['semantic_similarity']:.2f}")
     lines.append(f"Correctness Score:   {end_to_end['correctness']:.2f}/5.0")
-    lines.append(f"\"I Don't Know\" Acc:  {end_to_end['abstain_accuracy']:.2f}")
+    if "abstain_accuracy" in end_to_end:
+        lines.append(f"\"I Don't Know\" Acc:  {end_to_end['abstain_accuracy']:.2f}")
     lines.append(f"Total Latency:       {end_to_end['latency_ms']['avg']:.1f}ms average")
     return "\n".join(lines)
 
@@ -570,7 +572,19 @@ def evaluate(
         target_batch_seconds=cfg.ingestion.target_batch_seconds,
     )
     llm = OllamaLLM(model=cfg.llm.model, timeout_seconds=cfg.llm.timeout_seconds)
-    rag = RAGSystem(index=index, llm=llm, top_k=cfg.query.top_k)
+    reranker = None
+    if cfg.reranker.enabled:
+        reranker = FlashRankReranker(
+            model_name=cfg.reranker.model,
+            cache_dir=cfg.reranker.cache_dir,
+        )
+    rag = RAGSystem(
+        index=index,
+        llm=llm,
+        top_k=cfg.query.top_k,
+        reranker=reranker,
+        rerank_expansion=cfg.reranker.top_n_expansion,
+    )
 
     retrieval_hits = 0
     retrieval_rrs = []
@@ -578,6 +592,7 @@ def evaluate(
     retrieval_latencies = []
     retrieval_embed_latencies = []
     retrieval_search_latencies = []
+    retrieval_rerank_latencies = []
     retrieval_failures = []
     multi_source_recalls = []
 
@@ -599,17 +614,19 @@ def evaluate(
             "expected_chunk_count": expected_chunk_count,
         }
         try:
-            results, timing = _timed_query(embedder, vector_store, question, cfg.query.top_k)
+            results, timing = _timed_query(rag, question, cfg.query.top_k)
             retrieved_sources = [chunk.source for chunk, _score in results]
             record["retrieved_sources"] = retrieved_sources
             record["retrieval_timing_ms"] = {
                 "embed": timing.embed_ms,
                 "search": timing.search_ms,
+                "rerank": timing.rerank_ms,
                 "total": timing.total_ms,
             }
             retrieval_latencies.append(timing.total_ms)
             retrieval_embed_latencies.append(timing.embed_ms)
             retrieval_search_latencies.append(timing.search_ms)
+            retrieval_rerank_latencies.append(timing.rerank_ms)
 
             hit = any(
                 source_matches(gt, observed)
@@ -660,6 +677,7 @@ def evaluate(
         },
         "embed_latency_ms": _mean(retrieval_embed_latencies),
         "search_latency_ms": _mean(retrieval_search_latencies),
+        "rerank_latency_ms": _mean(retrieval_rerank_latencies),
         "failures": retrieval_failures,
     }
 
@@ -789,6 +807,9 @@ def evaluate(
             "model": cfg.llm.model,
             "db_path": cfg.vector_store.db_path,
             "table_name": cfg.vector_store.table_name,
+            "reranker_enabled": cfg.reranker.enabled,
+            "reranker_model": cfg.reranker.model,
+            "reranker_top_n_expansion": cfg.reranker.top_n_expansion,
         },
         "retrieval_metrics": retrieval_metrics,
         "generation_metrics": generation_metrics,

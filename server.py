@@ -19,6 +19,7 @@ from rag.index import Index
 from rag.llm import OllamaLLM
 from rag.models import Chunk
 from rag.rag import RAGSystem
+from rag.rerankers import FlashRankReranker
 from rag.vector_store import LanceDBVectorStore
 from run_eval import evaluate as run_evaluate
 from run_eval import _build_overrides as build_eval_overrides
@@ -39,6 +40,7 @@ class MetricsResponse(BaseModel):
     latency_ms: float
     embed_ms: float
     retrieve_ms: float
+    rerank_ms: float = 0.0
     generate_ms: float
     engine: Literal["cpp-accelerated"]
 
@@ -190,7 +192,19 @@ def _init_rag() -> tuple[RAGSystem, Index, AppConfig]:
         target_batch_seconds=cfg.ingestion.target_batch_seconds,
     )
     llm = OllamaLLM(model=cfg.llm.model, timeout_seconds=cfg.llm.timeout_seconds)
-    rag = RAGSystem(index=index, llm=llm, top_k=cfg.query.top_k)
+    reranker = None
+    if cfg.reranker.enabled:
+        reranker = FlashRankReranker(
+            model_name=cfg.reranker.model,
+            cache_dir=cfg.reranker.cache_dir,
+        )
+    rag = RAGSystem(
+        index=index,
+        llm=llm,
+        top_k=cfg.query.top_k,
+        reranker=reranker,
+        rerank_expansion=cfg.reranker.top_n_expansion,
+    )
     return rag, index, cfg
 
 
@@ -570,12 +584,7 @@ def chat(request: ChatRequest) -> ChatResponse:
     start = perf_counter()
     try:
         top_k = request.top_k or APP_CONFIG.query.top_k
-        ranked, timing = RAG_INDEX.query_with_metrics(request.question, top_k=top_k)
-        chunks = [chunk for chunk, _score in ranked]
-        prompt = _build_prompt(chunks, request.question)
-        generate_start = perf_counter()
-        answer = RAG_SYSTEM._llm.generate(prompt)
-        generate_ms = (perf_counter() - generate_start) * 1000.0
+        answer, ranked, metrics = RAG_SYSTEM.answer_with_metrics(request.question, top_k=top_k)
         latency_ms = (perf_counter() - start) * 1000.0
         return ChatResponse(
             answer=answer,
@@ -585,9 +594,10 @@ def chat(request: ChatRequest) -> ChatResponse:
             ],
             metrics=MetricsResponse(
                 latency_ms=latency_ms,
-                embed_ms=timing.get("embed_ms", 0.0),
-                retrieve_ms=timing.get("retrieve_ms", 0.0),
-                generate_ms=generate_ms,
+                embed_ms=metrics.get("embed_ms", 0.0),
+                retrieve_ms=metrics.get("retrieve_ms", 0.0),
+                rerank_ms=metrics.get("rerank_ms", 0.0),
+                generate_ms=metrics.get("generate_ms", 0.0),
                 engine="cpp-accelerated",
             ),
         )
