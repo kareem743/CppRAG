@@ -1,93 +1,172 @@
-# Local RAG 
+<div align="center">
 
-Local retrieval-augmented question answering over your files. This project uses a
-C++ chunker (`rag_core.pyd`), FastEmbed embeddings, LanceDB storage, and a local
-Ollama model for answers.
+# 🔍 Local RAG
+
+**Fast, fully local retrieval-augmented question answering over your files.**
+
+[![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-server-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![LanceDB](https://img.shields.io/badge/LanceDB-vector%20store-F5A623?style=flat-square)](https://lancedb.com/)
+[![Ollama](https://img.shields.io/badge/Ollama-local%20LLM-black?style=flat-square)](https://ollama.com/)
+[![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
+
+*C++ chunking · GPU-first embeddings · incremental ingestion · no data leaves your machine*
+
+</div>
 
 ---
 
-## At a Glance
+## ✨ Features
 
-Fast, local RAG pipeline you can run on a directory of files to get answers with
-source snippets.
+| | Feature | Details |
+|---|---|---|
+| ⚡ | **C++ Chunker** | `rag_core.IngestionEngine` with parallel API support |
+| 🔁 | **Incremental Ingestion** | File-hash cache skips unchanged files automatically |
+| 🎮 | **GPU-first Embeddings** | FastEmbed with automatic CPU fallback |
+| 🗄️ | **Vector Store** | LanceDB with post-ingestion compaction |
+| 🖥️ | **Three Interfaces** | CLI · FastAPI server · Vite frontend |
+| 📊 | **Evaluation Suite** | Retrieval, generation, and end-to-end metrics |
 
-## What You Get
+---
 
-- Incremental ingestion with a file-hash cache (`lancedb_data/ingestion_state.json`).
-- C++ chunking via `rag_core.IngestionEngine` (uses the parallel API when available).
-- GPU-first embeddings with automatic CPU fallback.
-- LanceDB vector store with post-ingestion compaction.
-- CLI commands with structured logging and timing.
-- An evaluation script with retrieval, generation, and end-to-end metrics.
+## 🚀 Quick Start
 
-## Who It's For
+### CLI
 
-- Teams that need fast local search over code or docs.
-- Projects that want repeatable ingestion and evaluation.
-- Anyone who prefers local LLMs over hosted APIs.
-
-## Quick Start
-
-1) (Optional) Activate the virtualenv:
-```
+```bash
+# 1. (Optional) activate the virtualenv
 .\.venv\Scripts\activate
-```
 
-2) Ingest a directory:
-```
+# 2. Ingest a directory
 python rag_cli.py ingest <PATH_TO_DOCS>
-```
 
-3) Ask a question:
-```
+# 3. Ask a question
 python rag_cli.py query <PATH_TO_DOCS> "Your question here"
-```
 
-4) Interactive mode:
-```
+# 4. Interactive mode
 python rag_cli.py serve <PATH_TO_DOCS>
 ```
 
-## Common CLI Examples
+### API + Frontend
+
+```bash
+# 1. Start the API server
+python server.py
+
+# 2. Start the frontend
+cd frontend
+npm install
+npm run dev
+```
+
+Then open the URL printed by Vite — usually **http://localhost:5173**.  
+The frontend expects the API at `http://127.0.0.1:8000`.
+
+<details>
+<summary>⚙️ Optional environment overrides</summary>
+
+```bash
+set RAG_DIRECTORY=C:\path\to\docs
+set RAG_CONFIG=C:\path\to\config.yaml
+```
+
+</details>
+
+---
+
+## 🔄 How It Works
 
 ```
+ Your Files
+     │
+     ▼
+ ① Scan & filter by extension
+     │
+     ▼
+ ② Detect changes via hash cache
+     │
+     ▼
+ ③ C++ chunker splits text into chunks
+     │
+     ▼
+ ④ FastEmbed creates embeddings  (GPU → CPU fallback)
+     │
+     ▼
+ ⑤ LanceDB stores vectors, text & source paths
+     │
+     ▼
+ ⑥ Query → embed → retrieve top-k → Ollama → Answer ✅
+```
+
+---
+
+## 🛠️ Common CLI Options
+
+```bash
+# Custom chunk size and file types
 python rag_cli.py ingest <DIR> --chunk-size 200 --overlap 50 --extensions "md,py"
+
+# Use a specific model and retrieve more chunks
 python rag_cli.py query <DIR> "Question" --top-k 5 --model llama3
+
+# Dry run to preview what would be ingested
 python rag_cli.py ingest <DIR> --dry-run --verbose
 ```
 
-## How Answers Are Produced
+---
 
-1) Files are scanned and filtered by extension.
-2) Changed files are detected via a hash cache.
-3) The C++ chunker splits text into chunks.
-4) FastEmbed creates embeddings (GPU-first, CPU fallback).
-5) LanceDB stores vectors, text, and source paths.
-6) A query embeds your question, retrieves top-k chunks, and calls `ollama run <model>`.
+## 🌐 API Reference
 
-## Project Layout
+Base URL: `http://127.0.0.1:8000`
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/chat` | Ask a question — body: `{ "question": "...", "top_k": 5 }` |
+| `POST` | `/api/ingest` | Start ingestion with optional overrides and `dry_run` |
+| `GET` | `/api/ingest/status` | Poll current ingestion progress |
+| `GET` | `/api/visualize?filepath=...` | View chunk spans for a specific file |
+| `GET` | `/api/stats` | System stats |
+
+---
+
+## 📁 Project Layout
 
 ```
-README.md
-rag_cli.py
-run_eval.py
-rag/
-docs/
+local-rag/
+├── rag_cli.py          # CLI entrypoint
+├── server.py           # FastAPI server
+├── run_eval.py         # Evaluation script
+├── rag_core.pyd        # C++ chunking engine
+├── rag/                # Core pipeline modules
+├── frontend/           # Vite + JS frontend
+└── docs/
+    ├── INDEX.md        # Documentation start page
+    ├── USAGE.md        # CLI usage and flags
+    ├── CONFIG.md       # Config file, env vars, overrides
+    ├── EVALUATION.md   # Evaluation workflow and metrics
+    ├── DATASET.md      # Golden dataset schema
+    ├── ARCHITECTURE.md # Modules and data flow
+    └── TROUBLESHOOTING.md
 ```
 
-## Docs
+---
 
-- `docs/INDEX.md` — Documentation start page.
-- `docs/USAGE.md` — CLI usage and flags.
-- `docs/CONFIG.md` — Config file, env vars, and overrides.
-- `docs/EVALUATION.md` — Evaluation workflow and metrics.
-- `docs/DATASET.md` — Golden dataset schema and guidance.
-- `docs/ARCHITECTURE.md` — Modules and data flow.
-- `docs/TROUBLESHOOTING.md` — Common issues and fixes.
+## 📦 Requirements
 
-## Requirements
-
-- Python 3.11+
+- **Python** 3.11+
 - `rag_core.pyd` in the project root
-- `fastembed`, `lancedb`, `typer`, `pydantic`, `pyyaml`
-- Ollama installed with a local model pulled (default model: `llama3`)
+- Python packages: `fastembed` `lancedb` `typer` `pydantic` `pyyaml`
+- [Ollama](https://ollama.com/) installed with a model pulled (default: `llama3`)
+
+```bash
+pip install fastembed lancedb typer pydantic pyyaml
+ollama pull llama3
+```
+
+---
+
+<div align="center">
+
+Built for teams that want **fast local search** over code and docs — no cloud required.
+
+</div>
