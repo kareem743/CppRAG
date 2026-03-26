@@ -1,4 +1,4 @@
-import { useMemo, useRef } from "react";
+import { Fragment, useMemo, useRef } from "react";
 
 type ChunkSpan = { start: number; end: number };
 
@@ -44,7 +44,7 @@ export default function ChunkVisualizer({
   fileContent,
   chunks,
 }: ChunkVisualizerProps) {
-  const tokenRefs = useRef<Record<number, HTMLSpanElement | null>>({});
+  const chunkRefs = useRef<Record<number, HTMLDivElement | null>>({});
 
   const tokens = useMemo(() => {
     if (!fileContent) {
@@ -55,67 +55,95 @@ export default function ChunkVisualizer({
   }, [fileContent, chunks]);
 
   const handleScrollToChunk = (chunkIndex: number) => {
-    const target = tokenRefs.current[chunkIndex];
+    const target = chunkRefs.current[chunkIndex];
     if (target) {
       target.scrollIntoView({ behavior: "smooth", block: "center" });
     }
   };
 
+  const unchunkedTokens = useMemo(() => {
+    return tokens.filter((token) => token.chunkIndexes.length === 0);
+  }, [tokens]);
+
   return (
     <div className="flex h-full flex-col gap-3">
-      <div className="flex items-center justify-between text-xs uppercase tracking-widest text-slate-400">
+      <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.3em] text-muted">
         <span>Chunk Visualizer</span>
-        <span className="text-[10px] text-slate-500">
-          {chunks.length} chunks
-        </span>
+        <span className="text-[10px] text-muted">{chunks.length} chunks</span>
       </div>
-      <div className="rounded-lg border border-border bg-background/70 p-4 font-mono text-xs leading-relaxed text-slate-200">
-        <div className="max-h-[70vh] overflow-y-auto">
+      <div className="flex-1 rounded-xl border border-slate-500/40 bg-slate-950/40 p-4 font-mono text-xs leading-relaxed text-primary">
+        <div className="h-full overflow-y-auto">
           {tokens.length === 0 ? (
-            <div className="text-slate-500">No file loaded.</div>
+            <div className="text-muted">No file loaded.</div>
           ) : (
-            <div className="flex flex-wrap gap-x-1 gap-y-2">
-              {tokens.map((token, index) => {
-                const overlaps = token.chunkIndexes.length > 1;
-                const inChunk = token.chunkIndexes.length === 1;
-                const chunkIndex = token.chunkIndexes[0] ?? -1;
+            <div className="flex flex-col gap-4">
+              {chunks.map((chunk, idx) => {
+                const chunkTokens = tokens.filter(
+                  (token) => token.index >= chunk.start && token.index <= chunk.end
+                );
                 return (
-                  <span
-                    key={`${token.index}-${index}`}
-                    ref={(node) => {
-                      if (chunkIndex >= 0 && !tokenRefs.current[chunkIndex]) {
-                        tokenRefs.current[chunkIndex] = node;
-                      }
-                    }}
-                    onClick={() => {
-                      if (chunkIndex >= 0) {
-                        handleScrollToChunk(chunkIndex);
-                      }
-                    }}
-                    className={`cursor-pointer rounded px-1 transition ${
-                      overlaps
-                        ? "bg-amber-400/30 text-amber-100"
-                        : inChunk
-                        ? "bg-indigo-500/20 text-indigo-100"
-                        : "text-slate-300"
-                    }`}
-                    title={
-                      overlaps
-                        ? "Overlap between chunks"
-                        : inChunk
-                        ? `Chunk ${chunkIndex + 1}`
-                        : "Unchunked token"
-                    }
-                  >
-                    {token.text}
-                  </span>
+                  <Fragment key={`chunk-${idx}`}>
+                    <div
+                      ref={(node) => {
+                        if (node) {
+                          chunkRefs.current[idx] = node;
+                        }
+                      }}
+                      className="flex items-center justify-between rounded-lg border border-slate-700/60 bg-slate-900/60 px-3 py-2 text-[11px] uppercase tracking-[0.25em] text-muted"
+                    >
+                      <span>Chunk {idx + 1}</span>
+                      <span className="text-[10px] text-muted">
+                        tokens {chunk.start}–{chunk.end}
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-x-1 gap-y-2">
+                      {chunkTokens.map((token, index) => {
+                        const overlaps = token.chunkIndexes.length > 1;
+                        return (
+                          <span
+                            key={`${token.index}-${index}-chunk-${idx}`}
+                            onClick={() => handleScrollToChunk(idx)}
+                            className={`cursor-pointer rounded px-1 transition ${
+                              overlaps
+                                ? "bg-border text-primary underline decoration-2 underline-offset-2 decoration-amber-400/80"
+                                : "bg-border text-primary"
+                            }`}
+                            title={
+                              overlaps
+                                ? "Overlap between chunks"
+                                : `Chunk ${idx + 1}`
+                            }
+                          >
+                            {token.text}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </Fragment>
                 );
               })}
+              {unchunkedTokens.length > 0 ? (
+                <Fragment>
+                  <div className="flex items-center justify-between rounded-lg border border-dashed border-slate-700/60 bg-slate-900/30 px-3 py-2 text-[11px] uppercase tracking-[0.25em] text-muted">
+                    <span>Unchunked</span>
+                    <span className="text-[10px] text-muted">
+                      {unchunkedTokens.length} tokens
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-x-1 gap-y-2 text-muted">
+                    {unchunkedTokens.map((token, index) => (
+                      <span key={`${token.index}-${index}-unchunked`}>
+                        {token.text}
+                      </span>
+                    ))}
+                  </div>
+                </Fragment>
+              ) : null}
             </div>
           )}
         </div>
       </div>
-      <div className="text-xs text-slate-500">
+      <div className="text-xs text-ink/50">
         Click a highlighted token to jump to its chunk.
       </div>
     </div>

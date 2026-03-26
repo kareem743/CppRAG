@@ -4,10 +4,16 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: "#020617",
-        surface: "#0f172a",
-        primary: "#6366f1",
-        border: "#1e293b",
+        background: "#0b0f17",
+        surface: "#0f1624",
+        primary: "#e5e7eb",
+        border: "#223148",
+        accent: "#38bdf8",
+        ink: "#e5e7eb",
+        muted: "#94a3b8",
+        sand: "#0b1a2d",
+        slate: "#0b1220",
+        glow: "#22d3ee",
       },
     },
   },

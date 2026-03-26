@@ -7,6 +7,8 @@ Start here. This index mirrors what the code actually does today.
 ## Quick Links
 
 - `README.md` — Project summary and quick start.
+- `docs/RAG_CPP_A_TO_Z.md` — Complete A-to-Z technical guide for RAG CPP.
+- `docs/RAG_CPP_FROM_ZERO_GUIDE.md` — From-zero teaching guide (file-by-file + architecture).
 - `docs/USAGE.md` — CLI commands, flags, and examples.
 - `docs/CONFIG.md` — YAML config, env vars, and overrides.
 
