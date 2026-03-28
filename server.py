@@ -190,6 +190,8 @@ def _init_rag() -> tuple[RAGSystem, Index, AppConfig]:
         min_files_per_batch=cfg.ingestion.min_files_per_batch,
         max_files_per_batch=cfg.ingestion.max_files_per_batch,
         target_batch_seconds=cfg.ingestion.target_batch_seconds,
+        auto_ingest=False,
+        ensure_schema=False,
     )
     llm = OllamaLLM(model=cfg.llm.model, timeout_seconds=cfg.llm.timeout_seconds)
     reranker = None

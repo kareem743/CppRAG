@@ -34,6 +34,8 @@ class Index:
             max_files_per_batch: int = 8000,
             target_batch_seconds: float = 20.0,
             state_path: Optional[Path] = None,
+            auto_ingest: bool = True,
+            ensure_schema: bool = True,
     ):
         self._embedder = embedder or FastEmbedEmbedder()
         self._vector_store = vector_store or LanceDBVectorStore(
@@ -53,8 +55,11 @@ class Index:
             )
             state_path = Path(db_path) / _STATE_FILE
         self._state_path = state_path
-        self._ensure_schema()
-        self._ingest(directory, chunk_size, overlap, extensions)
+        self._schema_ready = False
+        if ensure_schema:
+            self._ensure_schema()
+        if auto_ingest:
+            self._ingest(directory, chunk_size, overlap, extensions)
 
     @classmethod
     def from_directory(
@@ -81,6 +86,8 @@ class Index:
             self._vector_store.ensure_schema(sample[0])
         except (EmbeddingError, VectorStoreError) as exc:
             raise IngestionError("Failed to initialize schema") from exc
+        else:
+            self._schema_ready = True
 
     def _ingest(
         self,
@@ -89,6 +96,8 @@ class Index:
         overlap: int,
         extensions: Optional[Iterable[str]],
     ) -> None:
+        if not self._schema_ready:
+            self._ensure_schema()
         start = perf_counter()
 
         print(f"Scanning {directory}...")
